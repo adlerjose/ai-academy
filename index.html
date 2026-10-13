@@ -6,30 +6,52 @@
   <title>AI Academy | Formação de Elite em Inteligência Artificial</title>
   <meta name="description" content="A AI Academy une rigor acadêmico e desenvolvimento prático de software para capacitar desenvolvedores a projetar e implementar sistemas inteligentes reais.">
   
-  <!-- Fontes do Google Fonts: Plus Jakarta Sans e JetBrains Mono -->
+  <!-- Pré-conexão e carregamento de fontes do Google Fonts: Plus Jakarta Sans e JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Folha de Estilos Externa -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Script de Interações da Interface (Vanilla JS) -->
+  <script src="js/ui.js" defer></script>
 </head>
 <body>
 
-  <!-- CABEÇALHO DA PLATAFORMA -->
+  <!-- LINK DE ACESSIBILIDADE PARA PULAR A NAVEGAÇÃO DIRETAMENTE AO CONTEÚDO -->
+  <a href="#conteudo-principal" class="pular-navegacao">Pular para o conteúdo principal</a>
+
+  <!-- CABEÇALHO DA PLATAFORMA (GLASSMORPHISM & ACCESSIBILITY) -->
   <header class="cabecalho">
     <div class="conteiner cabecalho-barra">
-      <a href="#inicio" class="cabecalho-logo" aria-label="AI Academy Página Inicial">
-        <svg class="cabecalho-logo-icone" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect width="28" height="28" rx="6" fill="#0F172A" stroke="#334155" stroke-width="1.5"/>
-          <path d="M7 21L14 7L21 21" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9.5 16H18.5" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="14" cy="7" r="2" fill="#38BDF8"/>
+      
+      <!-- Marca / Logo -->
+      <a href="#inicio" class="cabecalho-logo" aria-label="AI Academy - Retornar à página inicial">
+        <svg class="cabecalho-logo-icone" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <rect width="30" height="30" rx="8" fill="#0b1120" stroke="#1e293b" stroke-width="1.5"/>
+          <path d="M8 22L15 8L22 22" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10.5 17H19.5" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="15" cy="8" r="2" fill="#38bdf8"/>
         </svg>
-        <span class="cabecalho-logo-texto">AI <strong>Academy</strong></span>
+        <span class="cabecalho-logo-texto">AI <strong class="logo-destaque">Academy</strong></span>
       </a>
 
-      <nav class="cabecalho-navegacao" aria-label="Navegação Principal">
+      <!-- Botão Hambúrguer para Dispositivos Móveis -->
+      <button 
+        type="button" 
+        class="cabecalho-hamburguer" 
+        id="botao-menu-mobile" 
+        aria-label="Abrir menu de navegação" 
+        aria-expanded="false" 
+        aria-controls="navegacao-principal">
+        <span class="hamburguer-barra" aria-hidden="true"></span>
+        <span class="hamburguer-barra" aria-hidden="true"></span>
+        <span class="hamburguer-barra" aria-hidden="true"></span>
+      </button>
+
+      <!-- Navegação Principal -->
+      <nav id="navegacao-principal" class="cabecalho-navegacao" aria-label="Navegação principal">
         <ul class="cabecalho-menu">
           <li class="cabecalho-item"><a href="#inicio" class="cabecalho-link">Início</a></li>
           <li class="cabecalho-item"><a href="#sobre" class="cabecalho-link">Sobre</a></li>
@@ -37,125 +59,174 @@
           <li class="cabecalho-item"><a href="#turing" class="cabecalho-link cabecalho-link-destaque">Tutor Turing</a></li>
         </ul>
       </nav>
+
     </div>
   </header>
 
   <!-- CONTEÚDO PRINCIPAL -->
-  <main>
+  <main id="conteudo-principal">
 
     <!-- SEÇÃO INÍCIO (HERO) -->
-    <section id="inicio" class="secao-inicio">
+    <section id="inicio" class="secao-inicio" aria-labelledby="titulo-inicio">
       <div class="conteiner secao-inicio-conteiner">
         <div class="inicio-bloco-conteudo">
-          <h1 class="inicio-titulo">
-            Supere a superficialidade. Construa a arquitetura da Inteligência Artificial.
+          
+          <!-- Indicador Utilitário / Badge de Posicionamento -->
+          <div class="inicio-indicador">
+            <span class="indicador-pulso" aria-hidden="true"></span>
+            <span class="indicador-texto">Formação de Elite em Engenharia de IA</span>
+          </div>
+
+          <!-- Headline Principal com Tipografia Fluida -->
+          <h1 id="titulo-inicio" class="inicio-titulo">
+            Supere a superficialidade.<br class="quebra-desktop"> Construa a arquitetura da Inteligência Artificial.
           </h1>
 
+          <!-- Subtítulo Analítico -->
           <p class="inicio-subtitulo">
             O mercado está repleto de operadores de ferramentas; o futuro pertence aos desenvolvedores que compreendem a mecânica profunda dos modelos. Na AI Academy, unimos rigor acadêmico e desenvolvimento prático de software para transformar estudantes e programadores em especialistas capacitados a projetar, integrar e escalar produtos inteligentes com absoluta autonomia técnica.
           </p>
 
+          <!-- Chamadas para Ação (CTAs) -->
           <div class="inicio-acoes">
             <a href="#cursos" class="botao botao-primario">
-              Explorar Trilhas de Formação
+              <span>Explorar Trilhas de Formação</span>
+              <svg class="botao-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3 8h10M9 4l4 4-4 4"/>
+              </svg>
             </a>
             <a href="#turing" class="botao botao-secundario">
-              Diagnosticar Ponto de Partida com o Turing
+              <span>Diagnosticar Ponto de Partida com o Turing</span>
             </a>
           </div>
 
-          <p class="inicio-nota">
-            Sem atalhos ilusórios. Formação estruturada do código à arquitetura.
-          </p>
+          <!-- Nota de Compromisso Técnico -->
+          <div class="inicio-nota">
+            <span class="nota-prefixo" aria-hidden="true">///</span>
+            <p class="nota-texto">Sem atalhos ilusórios. Formação estruturada do código à arquitetura.</p>
+          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- SEÇÃO SOBRE -->
-    <section id="sobre" class="secao-sobre">
+    <!-- SEÇÃO SOBRE (FILOSOFIA, AUTORIDADE & METODOLOGIA) -->
+    <section id="sobre" class="secao-sobre" aria-labelledby="titulo-sobre">
       <div class="conteiner">
+        
+        <!-- Cabeçalho de Seção -->
         <div class="secao-cabecalho">
-          <h2 class="secao-titulo">Sobre a AI Academy</h2>
+          <span class="secao-rotulo">Primeiros Princípios</span>
+          <h2 id="titulo-sobre" class="secao-titulo">Sobre a AI Academy</h2>
           <p class="secao-descricao">
             A ponte definitiva entre o rigor da ciência da computação e a engenharia de software aplicada.
           </p>
         </div>
 
+        <!-- Grade Bento: Proposta Pedagógica & Autoridade Científica -->
         <div class="sobre-grade">
-          <!-- Coluna 1: Proposta Pedagógica -->
+          
+          <!-- Bloco 1: Proposta Pedagógica -->
           <article class="sobre-artigo">
+            <div class="sobre-artigo-cabecalho">
+              <span class="sobre-artigo-indice">01</span>
+              <span class="sobre-artigo-pilar">Fundamentação Conceitual</span>
+            </div>
             <h3 class="sobre-artigo-titulo">O Rigor que Conduz à Autonomia</h3>
             <p class="sobre-artigo-texto">
               Acreditamos que a verdadeira inovação técnica não nasce da repetição mecânica de templates, mas do domínio dos primeiros princípios. Nossa grade curricular foi concebida para desmistificar a caixa-preta da Inteligência Artificial: decompomos desde os cálculos de gradiente e tensores até a mecânica de atenção dos Transformers, capacitando o desenvolvedor a raciocinar sobre limitações, custos, latência e precisão em cada decisão de engenharia.
             </p>
           </article>
 
-          <!-- Coluna 2: Autoridade e Padrão Científico -->
+          <!-- Bloco 2: Autoridade e Padrão Científico -->
           <article class="sobre-artigo">
+            <div class="sobre-artigo-cabecalho">
+              <span class="sobre-artigo-indice">02</span>
+              <span class="sobre-artigo-pilar">Padrão da Indústria</span>
+            </div>
             <h3 class="sobre-artigo-titulo">Autoridade e Padrão Científico</h3>
             <p class="sobre-artigo-texto">
               Nossos programas são estruturados com o mesmo rigor conceitual dos centros de excelência acadêmica mundiais, aliados à velocidade e exigência das empresas de tecnologia mais inovadoras. Cada curso e e-book é construído com embasamento em papers seminais, documentações técnicas canônicas e benchmarks consolidados da indústria. Tratamos IA como uma disciplina séria de ciência da computação - não como uma tendência passageira.
             </p>
           </article>
+
         </div>
 
-        <!-- Bloco de Metodologia Prática -->
+        <!-- Bloco de Metodologia Prática (Hands-on) -->
         <div class="sobre-metodologia">
-          <h3 class="sobre-metodologia-titulo">Metodologia Prática: Hands-on Baseado em Produção</h3>
-          <p class="sobre-metodologia-subtitulo">
-            Rejeitamos projetos de brinquedo e exemplos puramente teóricos. Nossa metodologia é fundamentada em um ciclo contínuo de aprendizado ativo:
-          </p>
+          <div class="metodologia-cabecalho">
+            <span class="secao-rotulo secao-rotulo-metodologia">Ciclo Pedagógico Ativo</span>
+            <h3 class="sobre-metodologia-titulo">Metodologia Prática: Hands-on Baseado em Produção</h3>
+            <p class="sobre-metodologia-subtitulo">
+              Rejeitamos projetos de brinquedo e exemplos puramente teóricos. Nossa metodologia é fundamentada em um ciclo contínuo de aprendizado ativo:
+            </p>
+          </div>
 
           <div class="metodologia-passos">
+            
             <div class="metodologia-passo">
-              <span class="passo-etiqueta">Etapa 1</span>
+              <div class="passo-cabecalho">
+                <span class="passo-etiqueta">Etapa 01</span>
+                <span class="passo-tipo">Fundamento</span>
+              </div>
               <h4 class="passo-titulo">Compreensão Teórica</h4>
               <p class="passo-texto">O modelo mental e a formulação matemática essencial por trás de cada arquitetura.</p>
             </div>
 
             <div class="metodologia-passo">
-              <span class="passo-etiqueta">Etapa 2</span>
+              <div class="passo-cabecalho">
+                <span class="passo-etiqueta">Etapa 02</span>
+                <span class="passo-tipo">Engenharia</span>
+              </div>
               <h4 class="passo-titulo">Desenvolvimento Guiado</h4>
               <p class="passo-texto">Escrita de código limpo, tipado e testado para pipelines de inferência, fine-tuning e orquestração.</p>
             </div>
 
             <div class="metodologia-passo">
-              <span class="passo-etiqueta">Etapa 3</span>
+              <div class="passo-cabecalho">
+                <span class="passo-etiqueta">Etapa 03</span>
+                <span class="passo-tipo">Produção</span>
+              </div>
               <h4 class="passo-titulo">Casos do Mundo Real</h4>
               <p class="passo-texto">Resolução de desafios de latência, controle de alucinações, governança de dados e integração sistêmica.</p>
             </div>
+
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- SEÇÃO CURSOS -->
-    <section id="cursos" class="secao-cursos">
+    <!-- SEÇÃO CURSOS (VITRINE DE 6 CARDS EM CSS GRID) -->
+    <section id="cursos" class="secao-cursos" aria-labelledby="titulo-cursos">
       <div class="conteiner">
+        
+        <!-- Cabeçalho de Seção -->
         <div class="secao-cabecalho">
-          <h2 class="secao-titulo">Cursos e Formações</h2>
+          <span class="secao-rotulo">Trilhas de Especialização</span>
+          <h2 id="titulo-cursos" class="secao-titulo">Cursos e Formações</h2>
           <p class="secao-descricao">
             Trilhas curriculares arquitetadas do fundamento matemático à engenharia de modelos em produção.
           </p>
         </div>
 
-        <!-- Grade de 6 Cards de Cursos -->
+        <!-- Grade dos 6 Cards de Cursos com layout obrigatório em CSS Grid -->
         <div class="grade-cursos">
 
           <!-- Card 1 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 0;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Iniciante a Intermediário</span>
-              <span class="etiqueta-carga">60h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-iniciante">Iniciante a Intermediário</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 60 horas">60h</span>
             </div>
-            <h3 class="cartao-titulo">Fundamentos de Machine Learning & Álgebra Computacional</h3>
+            <h3 class="cartao-titulo">Fundamentos de Machine Learning &amp; Álgebra Computacional</h3>
             <p class="cartao-ementa">
               Desmistifique a matemática essencial por trás dos modelos preditivos. Domine vetores, matrizes, gradiente descendente e algoritmos clássicos de regressão e classificação, implementando cada conceito em Python puro e Scikit-Learn antes de abstraí-los em bibliotecas de alto nível.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Fundamentos de Machine Learning">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Fundamentos de Machine Learning e Álgebra Computacional">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -163,19 +234,19 @@
           </article>
 
           <!-- Card 2 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 1;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Iniciante a Intermediário</span>
-              <span class="etiqueta-carga">40h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-iniciante">Iniciante a Intermediário</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 40 horas">40h</span>
             </div>
             <h3 class="cartao-titulo">Engenharia de Prompts Avançada e Raciocínio Estruturado</h3>
             <p class="cartao-ementa">
               Vá além de instruções triviais e domine a modelagem formal de contexto. Aprenda técnicas como Chain-of-Thought, ReAct, decomposição sistemática de tarefas complexas, mitigação sistemática de alucinações e geração de saídas estruturadas com esquemas JSON/Pydantic para integração em sistemas corporativos determinísticos.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Engenharia de Prompts Avançada">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Engenharia de Prompts Avançada e Raciocínio Estruturado">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -183,19 +254,19 @@
           </article>
 
           <!-- Card 3 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 2;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Intermediário</span>
-              <span class="etiqueta-carga">80h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-medio">Intermediário</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 80 horas">80h</span>
             </div>
             <h3 class="cartao-titulo">Desenvolvimento de Aplicações com LLMs: Da API ao Produto</h3>
             <p class="cartao-ementa">
               A ponte definitiva entre o desenvolvimento de software moderno e os Foundation Models. Aprenda a integrar APIs de ponta (OpenAI, Anthropic, Google Gemini), gerenciar contexto, memória e sessões, manipular streaming em tempo real e arquitetar backends resilientes prontos para tráfego real.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Desenvolvimento com LLMs">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Desenvolvimento de Aplicações com LLMs">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -203,19 +274,19 @@
           </article>
 
           <!-- Card 4 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 3;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Intermediário a Avançado</span>
-              <span class="etiqueta-carga">70h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-avancado">Intermediário a Avançado</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 70 horas">70h</span>
             </div>
             <h3 class="cartao-titulo">Sistemas RAG de Alta Precisão (Retrieval-Augmented Generation)</h3>
             <p class="cartao-ementa">
               Construa sistemas de busca semântica e recuperação contextual corporativa com precisão auditável. Explore técnicas de embeddings vetoriais, bancos de dados vetoriais (Chroma, Pinecone, Qdrant), estratégias avançadas de chunking, reranking semântico e pipelines de avaliação quantitativa com Ragas.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Sistemas RAG">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Sistemas RAG de Alta Precisão">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -223,19 +294,19 @@
           </article>
 
           <!-- Card 5 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 4;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Avançado</span>
-              <span class="etiqueta-carga">90h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-avancado">Avançado</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 90 horas">90h</span>
             </div>
             <h3 class="cartao-titulo">Engenharia de Agentes Autônomos e Sistemas Multiagente</h3>
             <p class="cartao-ementa">
               Projete e implemente ecossistemas de agentes autônomos orientados a objetivos. Domine o uso de ferramentas externas (Tool Use / Function Calling), memória de curto e longo prazo, planejamento hierárquico e coordenação de equipes de agentes cooperativos com LangGraph e CrewAI.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Engenharia de Agentes">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Engenharia de Agentes Autônomos e Sistemas Multiagente">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -243,19 +314,19 @@
           </article>
 
           <!-- Card 6 -->
-          <article class="cartao-curso">
+          <article class="cartao-curso" style="--cartao-indice: 5;">
             <div class="cartao-cabecalho">
-              <span class="etiqueta-nivel">Avançado</span>
-              <span class="etiqueta-carga">85h</span>
+              <span class="etiqueta-nivel etiqueta-nivel-especialista">Avançado</span>
+              <span class="etiqueta-carga" aria-label="Carga horária: 85 horas">85h</span>
             </div>
             <h3 class="cartao-titulo">Fine-Tuning, Otimização e Deploy Local de Modelos Abertos</h3>
             <p class="cartao-ementa">
               Conquiste total soberania e eficiência computacional adaptando modelos open-source (Llama, Mistral, Qwen). Aprenda técnicas de quantização (GGUF, AWQ), ajuste eficiente de parâmetros via LoRA/QLoRA, alinhamento por preferências (DPO) e orquestração de inferência em alta performance com vLLM e Ollama.
             </p>
             <div class="cartao-rodape">
-              <a href="#turing" class="cartao-link" aria-label="Ver detalhes de Fine-Tuning e Modelos Abertos">
-                Consultar Pré-requisitos
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <a href="#turing" class="cartao-link" aria-label="Consultar pré-requisitos para Fine-Tuning, Otimização e Deploy Local de Modelos Abertos">
+                <span>Consultar Pré-requisitos</span>
+                <svg class="cartao-link-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                   <path d="M3 8h10M9 4l4 4-4 4"/>
                 </svg>
               </a>
@@ -266,20 +337,20 @@
       </div>
     </section>
 
-    <!-- SEÇÃO TURING (EMBASAMENTO DO ASSISTENTE) -->
-    <section id="turing" class="secao-turing">
+    <!-- SEÇÃO TURING (EMBASAMENTO DO ASSISTENTE VIRTUAL) -->
+    <section id="turing" class="secao-turing" aria-labelledby="titulo-turing">
       <div class="conteiner">
         <div class="turing-painel">
           <div class="turing-identidade">
             <span class="turing-tag">Orientação Acadêmica Inteligente</span>
-            <h2 class="turing-titulo">Dúvidas sobre seu ponto de partida? Converse com o Turing.</h2>
+            <h2 id="titulo-turing" class="turing-titulo">Dúvidas sobre seu ponto de partida? Converse com o Turing.</h2>
             <p class="turing-texto">
               O Turing avalia seu histórico técnico em linguagens como Python, lógica e APIs para prescrever com exatidão a trilha curricular ideal para seus objetivos, eliminando a sobrecarga de informações da internet.
             </p>
           </div>
           <div class="turing-chamada">
             <a href="mailto:contato@aiacademy.edu.br?subject=Diagnostico%20de%20Carreira%20com%20o%20Turing" class="botao botao-primario">
-              Iniciar Diagnóstico com o Turing
+              <span>Iniciar Diagnóstico com o Turing</span>
             </a>
           </div>
         </div>
@@ -288,11 +359,11 @@
 
   </main>
 
-  <!-- RODAPÉ -->
+  <!-- RODAPÉ DA PLATAFORMA -->
   <footer class="rodape">
     <div class="conteiner rodape-conteiner">
       <div class="rodape-marca">
-        <span class="cabecalho-logo-texto">AI <strong>Academy</strong></span>
+        <span class="cabecalho-logo-texto">AI <strong class="logo-destaque">Academy</strong></span>
         <p class="rodape-subtexto">Educação rigorosa e aplicada em Inteligência Artificial.</p>
       </div>
       <div class="rodape-direitos">
@@ -303,4 +374,3 @@
 
 </body>
 </html>
-

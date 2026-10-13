@@ -1,44 +1,63 @@
 /* ==========================================================================
    AI ACADEMY - FOLHA DE ESTILOS PRINCIPAL
-   Abordagem: Mobile First
-   Nomenclatura: Classes exclusivamente em Portugues
+   Design System: Minimalist UI, Dark-Tech Utilitário & Engenharia Rigorosa
+   Abordagem: Mobile First | Acessibilidade: WCAG 2.1 AA/AAA
+   Nomenclatura: Classes exclusivamente em Português
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. VARIAVEIS GLOBAIS (:root) - DESIGN SYSTEM
+   1. VARIÁVEIS GLOBAIS (:root) - DESIGN SYSTEM
    -------------------------------------------------------------------------- */
 :root {
-  /* Paleta Cromatica (Engineered Slate & Cobalt) */
-  --cor-fundo-base: #090d16;          /* Fundo principal da pagina */
-  --cor-fundo-superficie: #0f172a;    /* Fundo secundario / Cards */
-  --cor-fundo-elevado: #15203b;       /* Superficies elevadas */
-  --cor-fundo-sutil: #1e293b;         /* Hover secundario e elementos neutros */
+  /* Paleta Cromática (Engineered Slate & Cobalt) */
+  --cor-fundo-base: #090d16;          /* Tela base / Canvas profundo */
+  --cor-fundo-superficie: #0e1526;    /* Cartões e superfícies primárias */
+  --cor-fundo-elevado: #141e34;       /* Superfícies elevadas e menus móveis */
+  --cor-fundo-sutil: #19243d;         /* Hover secundário e containers aninhados */
 
-  /* Bordas e Delimitacoes */
-  --cor-borda-sutil: #1e293b;         /* Divisores discretos */
-  --cor-borda-padrao: #334155;        /* Bordas de cards e controles */
-  --cor-borda-foco: #38bdf8;          /* Anel de foco para acessibilidade */
+  /* Estrutura de Bordas e Delimitações (1px strict) */
+  --cor-borda-sutil: rgba(255, 255, 255, 0.08); /* Linhas estruturais discretas */
+  --cor-borda-padrao: rgba(255, 255, 255, 0.14); /* Bordas de cards e controles */
+  --cor-borda-realce: rgba(56, 189, 248, 0.35);  /* Borda ativa no hover */
+  --cor-borda-foco: #38bdf8;                     /* Anel de foco (:focus-visible) */
 
-  /* Tipografia e Cores de Texto */
-  --cor-texto-primario: #f8fafc;      /* Titulos e destaque maximo */
-  --cor-texto-secundario: #94a3b8;    /* Paragrafos e ementas */
-  --cor-texto-silenciado: #64748b;    /* Metadados e etiquetas */
+  /* Tipografia e Contraste de Texto */
+  --cor-texto-primario: #f8fafc;      /* Títulos e leitura com contraste máximo (98% L) */
+  --cor-texto-secundario: #94a3b8;    /* Parágrafos e ementas (WCAG AA 5.8:1) */
+  --cor-texto-silenciado: #64748b;    /* Metadados, notas e micro-copy */
+  --cor-texto-inverso: #090d16;       /* Texto sobre elementos de alto brilho */
 
-  /* Cores de Acao (Botoes e Links) */
-  --cor-primaria: #2563eb;           /* Azul Cobalto Tecnologico */
-  --cor-primaria-hover: #1d4ed8;     /* Estado hover */
+  /* Cores de Ação (Cobalto Hiper-Tecnológico) */
+  --cor-primaria: #2563eb;           /* Azul Cobalto Institucional */
+  --cor-primaria-hover: #1d4ed8;     /* Estado hover de alta densidade */
   --cor-primaria-ativa: #1e40af;     /* Estado pressionado */
-  --cor-primaria-brilho: rgba(37, 99, 235, 0.25);
+  --cor-primaria-brilho: rgba(37, 99, 235, 0.28);
 
-  /* Acentos Tecnicos */
-  --cor-acento: #38bdf8;             /* Azul Ciano para chips tecnicos */
-  --cor-acento-fundo: rgba(56, 189, 248, 0.12);
+  /* Acentos Técnicos & Pastéis Muted (Minimalist UI) */
+  --cor-acento-azul: #38bdf8;
+  --cor-acento-azul-fundo: rgba(56, 189, 248, 0.1);
+  --cor-acento-verde: #34d399;
+  --cor-acento-verde-fundo: rgba(52, 211, 153, 0.1);
+  --cor-acento-amarelo: #fbbf24;
+  --cor-acento-amarelo-fundo: rgba(251, 191, 36, 0.1);
+  --cor-acento-roxo: #c084fc;
+  --cor-acento-roxo-fundo: rgba(192, 132, 252, 0.1);
 
-  /* Familias Tipograficas */
-  --fonte-principal: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --fonte-mono: 'JetBrains Mono', monospace;
+  /* Famílias Tipográficas */
+  --fonte-principal: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --fonte-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Escala de Espacamento (Base 8px) */
+  /* Escala Tipográfica Fluida (clamp()) */
+  --tamanho-texto-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);    /* 12px - 13px */
+  --tamanho-texto-sm: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);   /* 13px - 14px */
+  --tamanho-texto-base: clamp(0.9375rem, 0.89rem + 0.25vw, 1.0625rem); /* 15px - 17px */
+  --tamanho-texto-md: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);    /* 17px - 19px */
+  --tamanho-texto-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.4375rem);    /* 20px - 23px */
+  --tamanho-texto-xl: clamp(1.5rem, 1.35rem + 0.8vw, 1.875rem);      /* 24px - 30px */
+  --tamanho-texto-2xl: clamp(1.875rem, 1.6rem + 1.25vw, 2.375rem);   /* 30px - 38px */
+  --tamanho-texto-hero: clamp(2.15rem, 1.65rem + 2.5vw, 3.65rem);    /* 34px - 58px */
+
+  /* Espaçamento Estrutural e Macro-whitespace */
   --espaco-1: 0.25rem;   /* 4px */
   --espaco-2: 0.5rem;    /* 8px */
   --espaco-3: 0.75rem;   /* 12px */
@@ -50,27 +69,30 @@
   --espaco-12: 3rem;     /* 48px */
   --espaco-16: 4rem;     /* 64px */
   --espaco-20: 5rem;     /* 80px */
+  --espaco-secao-y: clamp(4.5rem, 8vw, 7.5rem);
+  --espaco-conteiner-x: clamp(1rem, 4vw, 2rem);
 
-  /* Arredondamento (Shape Consistency) */
+  /* Arredondamento Geométrico Estrito */
   --raio-pequeno: 6px;
   --raio-medio: 8px;
   --raio-grande: 12px;
   --raio-container: 16px;
   --raio-pilula: 9999px;
 
-  /* Sombras Calibradas */
-  --sombra-suave: 0 1px 3px rgba(0, 0, 0, 0.35);
-  --sombra-card: 0 4px 14px rgba(5, 8, 15, 0.45);
-  --sombra-hover: 0 10px 24px rgba(5, 8, 15, 0.6);
+  /* Sombras Calibradas Ultra-difusas (Sem Drop Shadows Pesados) */
+  --sombra-suave: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --sombra-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --sombra-hover: 0 12px 32px rgba(0, 0, 0, 0.45);
   --sombra-destaque: 0 0 24px var(--cor-primaria-brilho);
 
-  /* Transicoes */
+  /* Transições Precisas (Curva de Engenharia) */
   --transicao-rapida: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transicao-padrao: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transicao-revelacao: 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* --------------------------------------------------------------------------
-   2. RESET BASICO E TIPOGRAFIA GLOBAL
+   2. RESET MODERNO E ACESSIBILIDADE GLOBAL
    -------------------------------------------------------------------------- */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -80,23 +102,30 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
   background-color: var(--cor-fundo-base);
   color: var(--cor-texto-secundario);
   font-family: var(--fonte-principal);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--tamanho-texto-base);
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Bloqueio de rolagem quando o menu mobile estiver ativo */
+body.menu-aberto-bloqueio {
+  overflow: hidden;
 }
 
 h1, h2, h3, h4 {
   color: var(--cor-texto-primario);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 a {
@@ -108,54 +137,88 @@ ul {
   list-style: none;
 }
 
-/* Container Responsivo Padrao */
+/* Anel de Foco Estrito para Navegação por Teclado (:focus-visible) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cor-borda-foco);
+  outline-offset: 3px;
+  border-radius: inherit;
+}
+
+/* Link Oculto para Pular Diretamente ao Conteúdo (Acessibilidade W3C) */
+.pular-navegacao {
+  position: absolute;
+  top: -100px;
+  left: var(--espaco-4);
+  z-index: 9999;
+  background-color: var(--cor-primaria);
+  color: #ffffff;
+  font-family: var(--fonte-principal);
+  font-size: var(--tamanho-texto-sm);
+  font-weight: 600;
+  padding: var(--espaco-3) var(--espaco-5);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-destaque);
+  transition: top var(--transicao-rapida);
+}
+
+.pular-navegacao:focus {
+  top: var(--espaco-4);
+}
+
+/* Container Responsivo Padronizado */
 .conteiner {
   width: 100%;
   max-width: 1240px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--espaco-4);
-  padding-right: var(--espaco-4);
+  padding-left: var(--espaco-conteiner-x);
+  padding-right: var(--espaco-conteiner-x);
 }
 
 /* --------------------------------------------------------------------------
-   3. COMPONENTES: BOTOES INTERATIVOS
+   3. COMPONENTES INTERATIVOS BASE (BOTÕES & ETIQUETAS)
    -------------------------------------------------------------------------- */
 .botao {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--espaco-2);
+  min-height: 46px; /* Alvo de toque de acessibilidade (touch target) */
   font-family: var(--fonte-principal);
-  font-size: 0.9375rem;
+  font-size: var(--tamanho-texto-sm);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1;
   text-align: center;
   white-space: nowrap;
   padding: var(--espaco-3) var(--espaco-5);
   border-radius: var(--raio-medio);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform var(--transicao-rapida), background-color var(--transicao-rapida), border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+  transition: 
+    transform var(--transicao-rapida), 
+    background-color var(--transicao-rapida), 
+    border-color var(--transicao-rapida), 
+    box-shadow var(--transicao-rapida);
 }
 
 .botao:active {
-  transform: translateY(1px);
-}
-
-.botao:focus-visible {
-  outline: 2px solid var(--cor-borda-foco);
-  outline-offset: 2px;
+  transform: scale(0.98);
 }
 
 .botao-primario {
   background-color: var(--cor-primaria);
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.16);
   box-shadow: var(--sombra-suave);
 }
 
 .botao-primario:hover {
   background-color: var(--cor-primaria-hover);
+  border-color: rgba(255, 255, 255, 0.25);
   box-shadow: var(--sombra-destaque);
 }
 
@@ -167,34 +230,78 @@ ul {
 
 .botao-secundario:hover {
   background-color: var(--cor-fundo-sutil);
-  border-color: var(--cor-acento);
+  border-color: var(--cor-borda-realce);
+  color: #ffffff;
+}
+
+.botao-icone {
+  flex-shrink: 0;
+  transition: transform var(--transicao-rapida);
+}
+
+.botao:hover .botao-icone {
+  transform: translateX(3px);
+}
+
+/* Rótulos de Seção Técnicos */
+.secao-cabecalho {
+  margin-bottom: var(--espaco-10);
+  max-width: 720px;
+}
+
+.secao-rotulo {
+  display: inline-block;
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 600;
+  color: var(--cor-acento-azul);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--espaco-2);
+}
+
+.secao-titulo {
+  font-size: var(--tamanho-texto-2xl);
+  margin-bottom: var(--espaco-2);
+  color: var(--cor-texto-primario);
+}
+
+.secao-descricao {
+  font-size: var(--tamanho-texto-md);
+  color: var(--cor-texto-secundario);
+  line-height: 1.6;
 }
 
 /* --------------------------------------------------------------------------
-   4. CABECALHO (HEADER) - MOBILE FIRST
+   4. CABEÇALHO (HEADER COM EFEITO GLASSMORPHISM & MENU MOBILE)
    -------------------------------------------------------------------------- */
 .cabecalho {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background-color: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  background-color: rgba(9, 13, 22, 0.82);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   border-bottom: 1px solid var(--cor-borda-sutil);
+  transition: background-color var(--transicao-padrao), border-color var(--transicao-padrao);
 }
 
 .cabecalho-barra {
   display: flex;
-  flex-direction: column;
-  gap: var(--espaco-3);
-  padding-top: var(--espaco-3);
-  padding-bottom: var(--espaco-3);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  padding-top: var(--espaco-2);
+  padding-bottom: var(--espaco-2);
 }
 
+/* Logotipo */
 .cabecalho-logo {
   display: inline-flex;
   align-items: center;
-  gap: var(--espaco-2);
+  gap: var(--espaco-3);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-1);
 }
 
 .cabecalho-logo-icone {
@@ -205,29 +312,97 @@ ul {
   font-size: 1.125rem;
   font-weight: 500;
   color: var(--cor-texto-primario);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
-.cabecalho-logo-texto strong {
+.cabecalho-logo-texto .logo-destaque {
   font-weight: 800;
-  color: var(--cor-acento);
+  color: var(--cor-acento-azul);
 }
 
+/* Botão Hambúrguer Mobile */
+.cabecalho-hamburguer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid var(--cor-borda-sutil);
+  border-radius: var(--raio-medio);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--transicao-rapida), border-color var(--transicao-rapida);
+}
+
+.cabecalho-hamburguer:hover {
+  background-color: var(--cor-fundo-sutil);
+  border-color: var(--cor-borda-padrao);
+}
+
+.hamburguer-barra {
+  width: 20px;
+  height: 2px;
+  background-color: var(--cor-texto-primario);
+  border-radius: var(--raio-pilula);
+  transition: transform var(--transicao-padrao), opacity var(--transicao-padrao);
+}
+
+/* Estado de Menu Aberto no Ícone Hambúrguer */
+.cabecalho-hamburguer.aberto .hamburguer-barra:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.cabecalho-hamburguer.aberto .hamburguer-barra:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.cabecalho-hamburguer.aberto .hamburguer-barra:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Navegação Mobile (Gaveta Recolhível) */
 .cabecalho-navegacao {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  background-color: rgba(14, 21, 38, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--cor-borda-padrao);
+  box-shadow: var(--sombra-hover);
+  padding: var(--espaco-4) var(--espaco-conteiner-x) var(--espaco-6);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: 
+    opacity var(--transicao-padrao), 
+    transform var(--transicao-padrao), 
+    visibility var(--transicao-padrao);
+}
+
+.cabecalho-navegacao.ativo {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .cabecalho-menu {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--espaco-2);
 }
 
 .cabecalho-link {
-  display: inline-block;
-  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: var(--tamanho-texto-sm);
   font-weight: 500;
   color: var(--cor-texto-secundario);
   padding: var(--espaco-2) var(--espaco-3);
@@ -241,19 +416,28 @@ ul {
 }
 
 .cabecalho-link-destaque {
-  color: var(--cor-acento);
+  color: var(--cor-acento-azul);
   font-family: var(--fonte-mono);
-  font-size: 0.8125rem;
+  font-size: var(--tamanho-texto-xs);
+  background-color: var(--cor-acento-azul-fundo);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.cabecalho-link-destaque:hover {
+  background-color: rgba(56, 189, 248, 0.2);
+  color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------
-   5. SECAO INICIO (HERO) - MOBILE FIRST
+   5. SEÇÃO INÍCIO (HERO SECTION - MINIMALIST & EDITORIAL)
    -------------------------------------------------------------------------- */
 .secao-inicio {
-  padding-top: var(--espaco-12);
-  padding-bottom: var(--espaco-16);
+  padding-top: clamp(3.5rem, 6vw, 6rem);
+  padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
-  background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 60%),
+    radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.04), transparent 45%);
 }
 
 .secao-inicio-conteiner {
@@ -262,62 +446,91 @@ ul {
 }
 
 .inicio-bloco-conteudo {
-  max-width: 860px;
+  max-width: 920px;
 }
 
+/* Indicador de Status / Badge Superior */
+.inicio-indicador {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-sutil);
+  border-radius: var(--raio-pilula);
+  padding: var(--espaco-1) var(--espaco-3);
+  margin-bottom: var(--espaco-5);
+}
+
+.indicador-pulso {
+  width: 8px;
+  height: 8px;
+  background-color: var(--cor-acento-azul);
+  border-radius: var(--raio-pilula);
+  box-shadow: 0 0 8px var(--cor-acento-azul);
+}
+
+.indicador-texto {
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 500;
+  color: var(--cor-texto-primario);
+  letter-spacing: 0.02em;
+}
+
+/* Headline Principal */
 .inicio-titulo {
-  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-size: var(--tamanho-texto-hero);
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   margin-bottom: var(--espaco-5);
   color: var(--cor-texto-primario);
+  line-height: 1.15;
 }
 
 .inicio-subtitulo {
-  font-size: clamp(1rem, 2.5vw, 1.1875rem);
-  line-height: 1.7;
+  font-size: var(--tamanho-texto-md);
+  line-height: 1.75;
   color: var(--cor-texto-secundario);
   margin-bottom: var(--espaco-8);
-  max-width: 72ch;
+  max-width: 74ch;
 }
 
 .inicio-acoes {
   display: flex;
   flex-direction: column;
   gap: var(--espaco-3);
-  margin-bottom: var(--espaco-4);
+  margin-bottom: var(--espaco-5);
 }
 
+/* Nota de Compromisso em Monospace */
 .inicio-nota {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
   font-family: var(--fonte-mono);
-  font-size: 0.8125rem;
+  font-size: var(--tamanho-texto-xs);
   color: var(--cor-texto-silenciado);
 }
 
+.nota-prefixo {
+  color: var(--cor-acento-azul);
+  font-weight: 600;
+}
+
+.nota-texto {
+  line-height: 1.4;
+}
+
 /* --------------------------------------------------------------------------
-   6. SECAO SOBRE - MOBILE FIRST
+   6. SEÇÃO SOBRE (BENTO GRID - FILOSOFIA & METODOLOGIA)
    -------------------------------------------------------------------------- */
 .secao-sobre {
-  padding-top: var(--espaco-16);
-  padding-bottom: var(--espaco-16);
+  padding-top: var(--espaco-secao-y);
+  padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
 }
 
-.secao-cabecalho {
-  margin-bottom: var(--espaco-10);
-  max-width: 680px;
-}
-
-.secao-titulo {
-  font-size: clamp(1.75rem, 4vw, 2.375rem);
-  margin-bottom: var(--espaco-2);
-}
-
-.secao-descricao {
-  font-size: 1.0625rem;
-  color: var(--cor-texto-secundario);
-}
-
+/* Grade de Artigos (Bento Cards Asimétricos) */
 .sobre-grade {
   display: flex;
   flex-direction: column;
@@ -329,37 +542,78 @@ ul {
   background-color: var(--cor-fundo-superficie);
   border: 1px solid var(--cor-borda-sutil);
   border-radius: var(--raio-grande);
-  padding: var(--espaco-6);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  box-shadow: var(--sombra-card);
+  transition: border-color var(--transicao-padrao), box-shadow var(--transicao-padrao);
+}
+
+.sobre-artigo:hover {
+  border-color: var(--cor-borda-padrao);
+  box-shadow: var(--sombra-hover);
+}
+
+.sobre-artigo-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-4);
+  padding-bottom: var(--espaco-3);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+}
+
+.sobre-artigo-indice {
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 600;
+  color: var(--cor-acento-azul);
+}
+
+.sobre-artigo-pilar {
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  color: var(--cor-texto-silenciado);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .sobre-artigo-titulo {
-  font-size: 1.25rem;
+  font-size: var(--tamanho-texto-lg);
   margin-bottom: var(--espaco-3);
-  color: var(--cor-acento);
+  color: var(--cor-texto-primario);
 }
 
 .sobre-artigo-texto {
-  font-size: 0.9375rem;
-  line-height: 1.7;
+  font-size: var(--tamanho-texto-base);
+  line-height: 1.75;
+  color: var(--cor-texto-secundario);
 }
 
-/* Bloco Metodologia */
+/* Bloco de Metodologia Prática */
 .sobre-metodologia {
   background-color: var(--cor-fundo-superficie);
   border: 1px solid var(--cor-borda-padrao);
   border-radius: var(--raio-grande);
-  padding: var(--espaco-6);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  box-shadow: var(--sombra-card);
+}
+
+.metodologia-cabecalho {
+  margin-bottom: var(--espaco-8);
+  max-width: 760px;
+}
+
+.secao-rotulo-metodologia {
+  color: var(--cor-acento-verde);
 }
 
 .sobre-metodologia-titulo {
-  font-size: 1.375rem;
+  font-size: var(--tamanho-texto-xl);
   margin-bottom: var(--espaco-2);
 }
 
 .sobre-metodologia-subtitulo {
-  font-size: 0.9375rem;
+  font-size: var(--tamanho-texto-base);
   color: var(--cor-texto-secundario);
-  margin-bottom: var(--espaco-6);
 }
 
 .metodologia-passos {
@@ -372,61 +626,97 @@ ul {
   background-color: var(--cor-fundo-base);
   border: 1px solid var(--cor-borda-sutil);
   border-radius: var(--raio-medio);
-  padding: var(--espaco-4);
+  padding: var(--espaco-5);
+  transition: transform var(--transicao-padrao), border-color var(--transicao-padrao);
+}
+
+.metodologia-passo:hover {
+  transform: translateY(-2px);
+  border-color: var(--cor-borda-padrao);
+}
+
+.passo-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-2);
 }
 
 .passo-etiqueta {
-  display: inline-block;
   font-family: var(--fonte-mono);
-  font-size: 0.75rem;
+  font-size: var(--tamanho-texto-xs);
   font-weight: 600;
-  color: var(--cor-acento);
+  color: var(--cor-acento-verde);
   text-transform: uppercase;
-  margin-bottom: var(--espaco-1);
+}
+
+.passo-tipo {
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  color: var(--cor-texto-silenciado);
 }
 
 .passo-titulo {
-  font-size: 1.0625rem;
+  font-size: var(--tamanho-texto-md);
   margin-bottom: var(--espaco-1);
+  color: var(--cor-texto-primario);
 }
 
 .passo-texto {
-  font-size: 0.875rem;
+  font-size: var(--tamanho-texto-sm);
   line-height: 1.6;
   color: var(--cor-texto-secundario);
 }
 
 /* --------------------------------------------------------------------------
-   7. SECAO CURSOS (OBRIGATORIAMENTE DISPLAY: GRID OU FLEX) - MOBILE FIRST
+   7. SEÇÃO CURSOS (GRADE RESPONSIVA CSS GRID & CARDS PREMIUM)
    -------------------------------------------------------------------------- */
 .secao-cursos {
-  padding-top: var(--espaco-16);
-  padding-bottom: var(--espaco-16);
+  padding-top: var(--espaco-secao-y);
+  padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
 }
 
-/* Grade dos 6 Cursos usando Display: Grid */
+/* Layout Obrigatório da Grade de Cursos utilizando Display: Grid */
 .grade-cursos {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--espaco-6);
 }
 
-/* Cartao de Curso Individual */
+/* Card Individual de Curso (Display: Flex Interno com Alinhamento Perfeito) */
 .cartao-curso {
   display: flex;
   flex-direction: column;
   background-color: var(--cor-fundo-superficie);
   border: 1px solid var(--cor-borda-sutil);
   border-radius: var(--raio-grande);
-  padding: var(--espaco-6);
+  padding: clamp(1.5rem, 2.5vw, 2.25rem);
   box-shadow: var(--sombra-card);
-  transition: transform var(--transicao-padrao), border-color var(--transicao-padrao), box-shadow var(--transicao-padrao);
+  position: relative;
+
+  /* Estados Iniciais para Efeito de Entrada via IntersectionObserver */
+  opacity: 0;
+  transform: translateY(24px);
+  transition: 
+    opacity var(--transicao-revelacao),
+    transform var(--transicao-revelacao),
+    border-color var(--transicao-padrao),
+    box-shadow var(--transicao-padrao);
+  transition-delay: calc(var(--cartao-indice, 0) * 80ms);
+  will-change: opacity, transform;
 }
 
+/* Estado Ativado pelo IntersectionObserver */
+.cartao-curso.revelado {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Efeito Hover Sutil e Não Agressivo */
 .cartao-curso:hover {
-  transform: translateY(-3px);
-  border-color: var(--cor-borda-padrao);
+  transform: translateY(-4px);
+  border-color: var(--cor-borda-realce);
   box-shadow: var(--sombra-hover);
 }
 
@@ -438,26 +728,50 @@ ul {
   margin-bottom: var(--espaco-4);
 }
 
+/* Badges e Etiquetas Muted Pastels (Minimalist UI) */
 .etiqueta-nivel {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--fonte-mono);
-  font-size: 0.75rem;
+  font-size: var(--tamanho-texto-xs);
   font-weight: 500;
-  color: var(--cor-acento);
-  background-color: var(--cor-acento-fundo);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  padding: var(--espaco-1) var(--espaco-2);
+  padding: var(--espaco-1) var(--espaco-3);
   border-radius: var(--raio-pequeno);
+}
+
+.etiqueta-nivel-iniciante {
+  color: var(--cor-acento-azul);
+  background-color: var(--cor-acento-azul-fundo);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.etiqueta-nivel-medio {
+  color: var(--cor-acento-verde);
+  background-color: var(--cor-acento-verde-fundo);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.etiqueta-nivel-avancado {
+  color: var(--cor-acento-amarelo);
+  background-color: var(--cor-acento-amarelo-fundo);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.etiqueta-nivel-especialista {
+  color: var(--cor-acento-roxo);
+  background-color: var(--cor-acento-roxo-fundo);
+  border: 1px solid rgba(192, 132, 252, 0.2);
 }
 
 .etiqueta-carga {
   font-family: var(--fonte-mono);
-  font-size: 0.75rem;
+  font-size: var(--tamanho-texto-xs);
   font-weight: 600;
   color: var(--cor-texto-silenciado);
 }
 
 .cartao-titulo {
-  font-size: 1.1875rem;
+  font-size: var(--tamanho-texto-md);
   font-weight: 700;
   line-height: 1.35;
   margin-bottom: var(--espaco-3);
@@ -465,11 +779,11 @@ ul {
 }
 
 .cartao-ementa {
-  font-size: 0.875rem;
-  line-height: 1.65;
+  font-size: var(--tamanho-texto-sm);
+  line-height: 1.7;
   color: var(--cor-texto-secundario);
   margin-bottom: var(--espaco-6);
-  flex-grow: 1; /* Permite que o rodape alinhe perfeitamente na base */
+  flex-grow: 1; /* Garante que o rodapé alinhe perfeitamente na base do card */
 }
 
 .cartao-rodape {
@@ -482,10 +796,16 @@ ul {
   display: inline-flex;
   align-items: center;
   gap: var(--espaco-2);
-  font-size: 0.875rem;
+  min-height: 44px; /* Touch target */
+  font-size: var(--tamanho-texto-sm);
   font-weight: 600;
-  color: var(--cor-acento);
+  color: var(--cor-acento-azul);
+  border-radius: var(--raio-pequeno);
   transition: gap var(--transicao-rapida), color var(--transicao-rapida);
+}
+
+.cartao-link-icone {
+  transition: transform var(--transicao-rapida);
 }
 
 .cartao-link:hover {
@@ -493,44 +813,50 @@ ul {
   gap: var(--espaco-3);
 }
 
+.cartao-link:hover .cartao-link-icone {
+  transform: translateX(3px);
+}
+
 /* --------------------------------------------------------------------------
-   8. SECAO TURING (ASSISTENTE VIRTUAL) - MOBILE FIRST
+   8. SEÇÃO TURING (PAINEL DO ASSISTENTE ACADÊMICO)
    -------------------------------------------------------------------------- */
 .secao-turing {
-  padding-top: var(--espaco-16);
-  padding-bottom: var(--espaco-16);
+  padding-top: var(--espaco-secao-y);
+  padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
-  background-color: var(--cor-fundo-superficie);
+  background-color: var(--cor-fundo-base);
 }
 
 .turing-painel {
   display: flex;
   flex-direction: column;
   gap: var(--espaco-6);
-  background-color: var(--cor-fundo-base);
+  background-color: var(--cor-fundo-superficie);
   border: 1px solid var(--cor-borda-padrao);
   border-radius: var(--raio-container);
-  padding: var(--espaco-6);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  box-shadow: var(--sombra-card);
 }
 
 .turing-tag {
   display: inline-block;
   font-family: var(--fonte-mono);
-  font-size: 0.75rem;
+  font-size: var(--tamanho-texto-xs);
   font-weight: 600;
-  color: var(--cor-acento);
+  color: var(--cor-acento-azul);
   text-transform: uppercase;
   margin-bottom: var(--espaco-2);
 }
 
 .turing-titulo {
-  font-size: clamp(1.375rem, 3.5vw, 1.875rem);
+  font-size: var(--tamanho-texto-xl);
   margin-bottom: var(--espaco-3);
+  color: var(--cor-texto-primario);
 }
 
 .turing-texto {
-  font-size: 0.9375rem;
-  line-height: 1.65;
+  font-size: var(--tamanho-texto-base);
+  line-height: 1.7;
   color: var(--cor-texto-secundario);
 }
 
@@ -540,11 +866,11 @@ ul {
 }
 
 /* --------------------------------------------------------------------------
-   9. RODAPE - MOBILE FIRST
+   9. RODAPÉ DA PLATAFORMA
    -------------------------------------------------------------------------- */
 .rodape {
-  padding-top: var(--espaco-10);
-  padding-bottom: var(--espaco-10);
+  padding-top: var(--espaco-12);
+  padding-bottom: var(--espaco-12);
   background-color: var(--cor-fundo-base);
 }
 
@@ -555,23 +881,24 @@ ul {
 }
 
 .rodape-subtexto {
-  font-size: 0.875rem;
+  font-size: var(--tamanho-texto-sm);
   color: var(--cor-texto-silenciado);
   margin-top: var(--espaco-1);
 }
 
 .rodape-direitos {
-  font-size: 0.8125rem;
+  font-size: var(--tamanho-texto-xs);
+  font-family: var(--fonte-mono);
   color: var(--cor-texto-silenciado);
   border-top: 1px solid var(--cor-borda-sutil);
   padding-top: var(--espaco-4);
 }
 
 /* --------------------------------------------------------------------------
-   10. MEDIA QUERIES (PROGRESSAO RESPONSIVA - MOBILE FIRST)
+   10. PROGRESSÃO RESPONSIVA (MEDIA QUERIES - MOBILE FIRST)
    -------------------------------------------------------------------------- */
 
-/* Dispositivos Medios / Tablets (min-width: 640px) */
+/* Breakpoint Pequeno / Intermediário (min-width: 640px) */
 @media (min-width: 640px) {
   .inicio-acoes {
     flex-direction: row;
@@ -579,46 +906,66 @@ ul {
   }
 }
 
-/* Tablets e Telas Intermediarias (min-width: 768px) */
+/* Breakpoint Tablet / Desktop Médio (min-width: 768px) */
 @media (min-width: 768px) {
-  .cabecalho-barra {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: var(--espaco-4);
-    padding-bottom: var(--espaco-4);
+  /* Oculta botão de hambúrguer e expande navegação em linha horizontal */
+  .cabecalho-hamburguer {
+    display: none;
   }
 
   .cabecalho-navegacao {
+    position: static;
     width: auto;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: none;
+    box-shadow: none;
+    padding: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
   }
 
+  .cabecalho-menu {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espaco-2);
+  }
+
+  .quebra-desktop {
+    display: block;
+  }
+
+  /* Bento Grid 2 Colunas para Seção Sobre */
   .sobre-grade {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Metodologia Prática em 3 Colunas */
   .metodologia-passos {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
   }
 
-  /* Grade dos cursos passa para 2 colunas */
+  /* Grade de Cursos passa para 2 colunas */
   .grade-cursos {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Painel do Turing alinha texto e CTA lado a lado */
   .turing-painel {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: var(--espaco-10);
   }
 
   .turing-identidade {
     max-width: 65%;
   }
 
+  /* Rodapé alinha marca e direitos autorais */
   .rodape-conteiner {
     flex-direction: row;
     align-items: center;
@@ -631,23 +978,32 @@ ul {
   }
 }
 
-/* Telas Grandes e Desktops (min-width: 1024px) */
+/* Breakpoint Desktop Amplo (min-width: 1024px) */
 @media (min-width: 1024px) {
-  .secao-inicio {
-    padding-top: var(--espaco-20);
-    padding-bottom: var(--espaco-20);
-  }
-
-  .secao-sobre,
-  .secao-cursos,
-  .secao-turing {
-    padding-top: var(--espaco-20);
-    padding-bottom: var(--espaco-20);
-  }
-
-  /* Grade dos cursos passa para 3 colunas impecaveis */
+  /* Grade dos 6 Cursos expande para 3 colunas perfeitas */
   .grade-cursos {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/* --------------------------------------------------------------------------
+   11. PREFERÊNCIA DE MOVIMENTO REDUZIDO (ACESSIBILIDADE PREFERS-REDUCED-MOTION)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cartao-curso {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .cabecalho-navegacao {
+    transition: none !important;
+  }
+}
