@@ -1,0 +1,653 @@
+/* ==========================================================================
+   AI ACADEMY - FOLHA DE ESTILOS PRINCIPAL
+   Abordagem: Mobile First
+   Nomenclatura: Classes exclusivamente em Portugues
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. VARIAVEIS GLOBAIS (:root) - DESIGN SYSTEM
+   -------------------------------------------------------------------------- */
+:root {
+  /* Paleta Cromatica (Engineered Slate & Cobalt) */
+  --cor-fundo-base: #090d16;          /* Fundo principal da pagina */
+  --cor-fundo-superficie: #0f172a;    /* Fundo secundario / Cards */
+  --cor-fundo-elevado: #15203b;       /* Superficies elevadas */
+  --cor-fundo-sutil: #1e293b;         /* Hover secundario e elementos neutros */
+
+  /* Bordas e Delimitacoes */
+  --cor-borda-sutil: #1e293b;         /* Divisores discretos */
+  --cor-borda-padrao: #334155;        /* Bordas de cards e controles */
+  --cor-borda-foco: #38bdf8;          /* Anel de foco para acessibilidade */
+
+  /* Tipografia e Cores de Texto */
+  --cor-texto-primario: #f8fafc;      /* Titulos e destaque maximo */
+  --cor-texto-secundario: #94a3b8;    /* Paragrafos e ementas */
+  --cor-texto-silenciado: #64748b;    /* Metadados e etiquetas */
+
+  /* Cores de Acao (Botoes e Links) */
+  --cor-primaria: #2563eb;           /* Azul Cobalto Tecnologico */
+  --cor-primaria-hover: #1d4ed8;     /* Estado hover */
+  --cor-primaria-ativa: #1e40af;     /* Estado pressionado */
+  --cor-primaria-brilho: rgba(37, 99, 235, 0.25);
+
+  /* Acentos Tecnicos */
+  --cor-acento: #38bdf8;             /* Azul Ciano para chips tecnicos */
+  --cor-acento-fundo: rgba(56, 189, 248, 0.12);
+
+  /* Familias Tipograficas */
+  --fonte-principal: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --fonte-mono: 'JetBrains Mono', monospace;
+
+  /* Escala de Espacamento (Base 8px) */
+  --espaco-1: 0.25rem;   /* 4px */
+  --espaco-2: 0.5rem;    /* 8px */
+  --espaco-3: 0.75rem;   /* 12px */
+  --espaco-4: 1rem;      /* 16px */
+  --espaco-5: 1.25rem;   /* 20px */
+  --espaco-6: 1.5rem;    /* 24px */
+  --espaco-8: 2rem;      /* 32px */
+  --espaco-10: 2.5rem;   /* 40px */
+  --espaco-12: 3rem;     /* 48px */
+  --espaco-16: 4rem;     /* 64px */
+  --espaco-20: 5rem;     /* 80px */
+
+  /* Arredondamento (Shape Consistency) */
+  --raio-pequeno: 6px;
+  --raio-medio: 8px;
+  --raio-grande: 12px;
+  --raio-container: 16px;
+  --raio-pilula: 9999px;
+
+  /* Sombras Calibradas */
+  --sombra-suave: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --sombra-card: 0 4px 14px rgba(5, 8, 15, 0.45);
+  --sombra-hover: 0 10px 24px rgba(5, 8, 15, 0.6);
+  --sombra-destaque: 0 0 24px var(--cor-primaria-brilho);
+
+  /* Transicoes */
+  --transicao-rapida: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transicao-padrao: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET BASICO E TIPOGRAFIA GLOBAL
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cor-fundo-base);
+  color: var(--cor-texto-secundario);
+  font-family: var(--fonte-principal);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  color: var(--cor-texto-primario);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Container Responsivo Padrao */
+.conteiner {
+  width: 100%;
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--espaco-4);
+  padding-right: var(--espaco-4);
+}
+
+/* --------------------------------------------------------------------------
+   3. COMPONENTES: BOTOES INTERATIVOS
+   -------------------------------------------------------------------------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fonte-principal);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  padding: var(--espaco-3) var(--espaco-5);
+  border-radius: var(--raio-medio);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transicao-rapida), background-color var(--transicao-rapida), border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+}
+
+.botao:active {
+  transform: translateY(1px);
+}
+
+.botao:focus-visible {
+  outline: 2px solid var(--cor-borda-foco);
+  outline-offset: 2px;
+}
+
+.botao-primario {
+  background-color: var(--cor-primaria);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--sombra-suave);
+}
+
+.botao-primario:hover {
+  background-color: var(--cor-primaria-hover);
+  box-shadow: var(--sombra-destaque);
+}
+
+.botao-secundario {
+  background-color: var(--cor-fundo-superficie);
+  color: var(--cor-texto-primario);
+  border-color: var(--cor-borda-padrao);
+}
+
+.botao-secundario:hover {
+  background-color: var(--cor-fundo-sutil);
+  border-color: var(--cor-acento);
+}
+
+/* --------------------------------------------------------------------------
+   4. CABECALHO (HEADER) - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+}
+
+.cabecalho-barra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+  padding-top: var(--espaco-3);
+  padding-bottom: var(--espaco-3);
+}
+
+.cabecalho-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.cabecalho-logo-icone {
+  flex-shrink: 0;
+}
+
+.cabecalho-logo-texto {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--cor-texto-primario);
+  letter-spacing: -0.01em;
+}
+
+.cabecalho-logo-texto strong {
+  font-weight: 800;
+  color: var(--cor-acento);
+}
+
+.cabecalho-navegacao {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cabecalho-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.cabecalho-link {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--cor-texto-secundario);
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-pequeno);
+  transition: color var(--transicao-rapida), background-color var(--transicao-rapida);
+}
+
+.cabecalho-link:hover {
+  color: var(--cor-texto-primario);
+  background-color: var(--cor-fundo-sutil);
+}
+
+.cabecalho-link-destaque {
+  color: var(--cor-acento);
+  font-family: var(--fonte-mono);
+  font-size: 0.8125rem;
+}
+
+/* --------------------------------------------------------------------------
+   5. SECAO INICIO (HERO) - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.secao-inicio {
+  padding-top: var(--espaco-12);
+  padding-bottom: var(--espaco-16);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+  background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%);
+}
+
+.secao-inicio-conteiner {
+  display: flex;
+  flex-direction: column;
+}
+
+.inicio-bloco-conteudo {
+  max-width: 860px;
+}
+
+.inicio-titulo {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--espaco-5);
+  color: var(--cor-texto-primario);
+}
+
+.inicio-subtitulo {
+  font-size: clamp(1rem, 2.5vw, 1.1875rem);
+  line-height: 1.7;
+  color: var(--cor-texto-secundario);
+  margin-bottom: var(--espaco-8);
+  max-width: 72ch;
+}
+
+.inicio-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+  margin-bottom: var(--espaco-4);
+}
+
+.inicio-nota {
+  font-family: var(--fonte-mono);
+  font-size: 0.8125rem;
+  color: var(--cor-texto-silenciado);
+}
+
+/* --------------------------------------------------------------------------
+   6. SECAO SOBRE - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.secao-sobre {
+  padding-top: var(--espaco-16);
+  padding-bottom: var(--espaco-16);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+}
+
+.secao-cabecalho {
+  margin-bottom: var(--espaco-10);
+  max-width: 680px;
+}
+
+.secao-titulo {
+  font-size: clamp(1.75rem, 4vw, 2.375rem);
+  margin-bottom: var(--espaco-2);
+}
+
+.secao-descricao {
+  font-size: 1.0625rem;
+  color: var(--cor-texto-secundario);
+}
+
+.sobre-grade {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+  margin-bottom: var(--espaco-10);
+}
+
+.sobre-artigo {
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: var(--espaco-6);
+}
+
+.sobre-artigo-titulo {
+  font-size: 1.25rem;
+  margin-bottom: var(--espaco-3);
+  color: var(--cor-acento);
+}
+
+.sobre-artigo-texto {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* Bloco Metodologia */
+.sobre-metodologia {
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-grande);
+  padding: var(--espaco-6);
+}
+
+.sobre-metodologia-titulo {
+  font-size: 1.375rem;
+  margin-bottom: var(--espaco-2);
+}
+
+.sobre-metodologia-subtitulo {
+  font-size: 0.9375rem;
+  color: var(--cor-texto-secundario);
+  margin-bottom: var(--espaco-6);
+}
+
+.metodologia-passos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+}
+
+.metodologia-passo {
+  background-color: var(--cor-fundo-base);
+  border: 1px solid var(--cor-borda-sutil);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-4);
+}
+
+.passo-etiqueta {
+  display: inline-block;
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-acento);
+  text-transform: uppercase;
+  margin-bottom: var(--espaco-1);
+}
+
+.passo-titulo {
+  font-size: 1.0625rem;
+  margin-bottom: var(--espaco-1);
+}
+
+.passo-texto {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--cor-texto-secundario);
+}
+
+/* --------------------------------------------------------------------------
+   7. SECAO CURSOS (OBRIGATORIAMENTE DISPLAY: GRID OU FLEX) - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.secao-cursos {
+  padding-top: var(--espaco-16);
+  padding-bottom: var(--espaco-16);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+}
+
+/* Grade dos 6 Cursos usando Display: Grid */
+.grade-cursos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-6);
+}
+
+/* Cartao de Curso Individual */
+.cartao-curso {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-sutil);
+  border-radius: var(--raio-grande);
+  padding: var(--espaco-6);
+  box-shadow: var(--sombra-card);
+  transition: transform var(--transicao-padrao), border-color var(--transicao-padrao), box-shadow var(--transicao-padrao);
+}
+
+.cartao-curso:hover {
+  transform: translateY(-3px);
+  border-color: var(--cor-borda-padrao);
+  box-shadow: var(--sombra-hover);
+}
+
+.cartao-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-2);
+  margin-bottom: var(--espaco-4);
+}
+
+.etiqueta-nivel {
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--cor-acento);
+  background-color: var(--cor-acento-fundo);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: var(--espaco-1) var(--espaco-2);
+  border-radius: var(--raio-pequeno);
+}
+
+.etiqueta-carga {
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-texto-silenciado);
+}
+
+.cartao-titulo {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: var(--espaco-3);
+  color: var(--cor-texto-primario);
+}
+
+.cartao-ementa {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--cor-texto-secundario);
+  margin-bottom: var(--espaco-6);
+  flex-grow: 1; /* Permite que o rodape alinhe perfeitamente na base */
+}
+
+.cartao-rodape {
+  border-top: 1px solid var(--cor-borda-sutil);
+  padding-top: var(--espaco-4);
+  margin-top: auto;
+}
+
+.cartao-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cor-acento);
+  transition: gap var(--transicao-rapida), color var(--transicao-rapida);
+}
+
+.cartao-link:hover {
+  color: #ffffff;
+  gap: var(--espaco-3);
+}
+
+/* --------------------------------------------------------------------------
+   8. SECAO TURING (ASSISTENTE VIRTUAL) - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.secao-turing {
+  padding-top: var(--espaco-16);
+  padding-bottom: var(--espaco-16);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+  background-color: var(--cor-fundo-superficie);
+}
+
+.turing-painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+  background-color: var(--cor-fundo-base);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-container);
+  padding: var(--espaco-6);
+}
+
+.turing-tag {
+  display: inline-block;
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-acento);
+  text-transform: uppercase;
+  margin-bottom: var(--espaco-2);
+}
+
+.turing-titulo {
+  font-size: clamp(1.375rem, 3.5vw, 1.875rem);
+  margin-bottom: var(--espaco-3);
+}
+
+.turing-texto {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--cor-texto-secundario);
+}
+
+.turing-chamada {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* --------------------------------------------------------------------------
+   9. RODAPE - MOBILE FIRST
+   -------------------------------------------------------------------------- */
+.rodape {
+  padding-top: var(--espaco-10);
+  padding-bottom: var(--espaco-10);
+  background-color: var(--cor-fundo-base);
+}
+
+.rodape-conteiner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+}
+
+.rodape-subtexto {
+  font-size: 0.875rem;
+  color: var(--cor-texto-silenciado);
+  margin-top: var(--espaco-1);
+}
+
+.rodape-direitos {
+  font-size: 0.8125rem;
+  color: var(--cor-texto-silenciado);
+  border-top: 1px solid var(--cor-borda-sutil);
+  padding-top: var(--espaco-4);
+}
+
+/* --------------------------------------------------------------------------
+   10. MEDIA QUERIES (PROGRESSAO RESPONSIVA - MOBILE FIRST)
+   -------------------------------------------------------------------------- */
+
+/* Dispositivos Medios / Tablets (min-width: 640px) */
+@media (min-width: 640px) {
+  .inicio-acoes {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Tablets e Telas Intermediarias (min-width: 768px) */
+@media (min-width: 768px) {
+  .cabecalho-barra {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--espaco-4);
+    padding-bottom: var(--espaco-4);
+  }
+
+  .cabecalho-navegacao {
+    width: auto;
+  }
+
+  .sobre-grade {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metodologia-passos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Grade dos cursos passa para 2 colunas */
+  .grade-cursos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .turing-painel {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--espaco-10);
+  }
+
+  .turing-identidade {
+    max-width: 65%;
+  }
+
+  .rodape-conteiner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .rodape-direitos {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+/* Telas Grandes e Desktops (min-width: 1024px) */
+@media (min-width: 1024px) {
+  .secao-inicio {
+    padding-top: var(--espaco-20);
+    padding-bottom: var(--espaco-20);
+  }
+
+  .secao-sobre,
+  .secao-cursos,
+  .secao-turing {
+    padding-top: var(--espaco-20);
+    padding-bottom: var(--espaco-20);
+  }
+
+  /* Grade dos cursos passa para 3 colunas impecaveis */
+  .grade-cursos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
