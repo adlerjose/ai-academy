@@ -1,39 +1,25 @@
-/* ==========================================================================
-   AI ACADEMY - FOLHA DE ESTILOS PRINCIPAL
-   Design System: Minimalist UI, Dark-Tech Utilitário & Engenharia Rigorosa
-   Abordagem: Mobile First | Acessibilidade: WCAG 2.1 AA/AAA
-   Nomenclatura: Classes exclusivamente em Português
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   1. VARIÁVEIS GLOBAIS (:root) - DESIGN SYSTEM
-   -------------------------------------------------------------------------- */
 :root {
-  /* Paleta Cromática (Engineered Slate & Cobalt) */
-  --cor-fundo-base: #090d16;          /* Tela base / Canvas profundo */
-  --cor-fundo-superficie: #0e1526;    /* Cartões e superfícies primárias */
-  --cor-fundo-elevado: #141e34;       /* Superfícies elevadas e menus móveis */
-  --cor-fundo-sutil: #19243d;         /* Hover secundário e containers aninhados */
 
-  /* Estrutura de Bordas e Delimitações (1px strict) */
-  --cor-borda-sutil: rgba(255, 255, 255, 0.08); /* Linhas estruturais discretas */
-  --cor-borda-padrao: rgba(255, 255, 255, 0.14); /* Bordas de cards e controles */
-  --cor-borda-realce: rgba(56, 189, 248, 0.35);  /* Borda ativa no hover */
-  --cor-borda-foco: #38bdf8;                     /* Anel de foco (:focus-visible) */
+  --cor-fundo-base: #090d16;
+  --cor-fundo-superficie: #0e1526;
+  --cor-fundo-elevado: #141e34;
+  --cor-fundo-sutil: #19243d;
 
-  /* Tipografia e Contraste de Texto */
-  --cor-texto-primario: #f8fafc;      /* Títulos e leitura com contraste máximo (98% L) */
-  --cor-texto-secundario: #94a3b8;    /* Parágrafos e ementas (WCAG AA 5.8:1) */
-  --cor-texto-silenciado: #64748b;    /* Metadados, notas e micro-copy */
-  --cor-texto-inverso: #090d16;       /* Texto sobre elementos de alto brilho */
+  --cor-borda-sutil: rgba(255, 255, 255, 0.08);
+  --cor-borda-padrao: rgba(255, 255, 255, 0.14);
+  --cor-borda-realce: rgba(56, 189, 248, 0.35);
+  --cor-borda-foco: #38bdf8;
 
-  /* Cores de Ação (Cobalto Hiper-Tecnológico) */
-  --cor-primaria: #2563eb;           /* Azul Cobalto Institucional */
-  --cor-primaria-hover: #1d4ed8;     /* Estado hover de alta densidade */
-  --cor-primaria-ativa: #1e40af;     /* Estado pressionado */
+  --cor-texto-primario: #f8fafc;
+  --cor-texto-secundario: #94a3b8;
+  --cor-texto-silenciado: #64748b;
+  --cor-texto-inverso: #090d16;
+
+  --cor-primaria: #2563eb;
+  --cor-primaria-hover: #1d4ed8;
+  --cor-primaria-ativa: #1e40af;
   --cor-primaria-brilho: rgba(37, 99, 235, 0.28);
 
-  /* Acentos Técnicos & Pastéis Muted (Minimalist UI) */
   --cor-acento-azul: #38bdf8;
   --cor-acento-azul-fundo: rgba(56, 189, 248, 0.1);
   --cor-acento-verde: #34d399;
@@ -43,57 +29,48 @@
   --cor-acento-roxo: #c084fc;
   --cor-acento-roxo-fundo: rgba(192, 132, 252, 0.1);
 
-  /* Famílias Tipográficas */
   --fonte-principal: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --fonte-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Escala Tipográfica Fluida (clamp()) */
-  --tamanho-texto-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);    /* 12px - 13px */
-  --tamanho-texto-sm: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);   /* 13px - 14px */
-  --tamanho-texto-base: clamp(0.9375rem, 0.89rem + 0.25vw, 1.0625rem); /* 15px - 17px */
-  --tamanho-texto-md: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);    /* 17px - 19px */
-  --tamanho-texto-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.4375rem);    /* 20px - 23px */
-  --tamanho-texto-xl: clamp(1.5rem, 1.35rem + 0.8vw, 1.875rem);      /* 24px - 30px */
-  --tamanho-texto-2xl: clamp(1.875rem, 1.6rem + 1.25vw, 2.375rem);   /* 30px - 38px */
-  --tamanho-texto-hero: clamp(2.15rem, 1.65rem + 2.5vw, 3.65rem);    /* 34px - 58px */
+  --tamanho-texto-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --tamanho-texto-sm: clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+  --tamanho-texto-base: clamp(0.9375rem, 0.89rem + 0.25vw, 1.0625rem);
+  --tamanho-texto-md: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+  --tamanho-texto-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.4375rem);
+  --tamanho-texto-xl: clamp(1.5rem, 1.35rem + 0.8vw, 1.875rem);
+  --tamanho-texto-2xl: clamp(1.875rem, 1.6rem + 1.25vw, 2.375rem);
+  --tamanho-texto-hero: clamp(2.15rem, 1.65rem + 2.5vw, 3.65rem);
 
-  /* Espaçamento Estrutural e Macro-whitespace */
-  --espaco-1: 0.25rem;   /* 4px */
-  --espaco-2: 0.5rem;    /* 8px */
-  --espaco-3: 0.75rem;   /* 12px */
-  --espaco-4: 1rem;      /* 16px */
-  --espaco-5: 1.25rem;   /* 20px */
-  --espaco-6: 1.5rem;    /* 24px */
-  --espaco-8: 2rem;      /* 32px */
-  --espaco-10: 2.5rem;   /* 40px */
-  --espaco-12: 3rem;     /* 48px */
-  --espaco-16: 4rem;     /* 64px */
-  --espaco-20: 5rem;     /* 80px */
+  --espaco-1: 0.25rem;
+  --espaco-2: 0.5rem;
+  --espaco-3: 0.75rem;
+  --espaco-4: 1rem;
+  --espaco-5: 1.25rem;
+  --espaco-6: 1.5rem;
+  --espaco-8: 2rem;
+  --espaco-10: 2.5rem;
+  --espaco-12: 3rem;
+  --espaco-16: 4rem;
+  --espaco-20: 5rem;
   --espaco-secao-y: clamp(4.5rem, 8vw, 7.5rem);
   --espaco-conteiner-x: clamp(1rem, 4vw, 2rem);
 
-  /* Arredondamento Geométrico Estrito */
   --raio-pequeno: 6px;
   --raio-medio: 8px;
   --raio-grande: 12px;
   --raio-container: 16px;
   --raio-pilula: 9999px;
 
-  /* Sombras Calibradas Ultra-difusas (Sem Drop Shadows Pesados) */
   --sombra-suave: 0 1px 3px rgba(0, 0, 0, 0.4);
   --sombra-card: 0 4px 20px rgba(0, 0, 0, 0.25);
   --sombra-hover: 0 12px 32px rgba(0, 0, 0, 0.45);
   --sombra-destaque: 0 0 24px var(--cor-primaria-brilho);
 
-  /* Transições Precisas (Curva de Engenharia) */
   --transicao-rapida: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transicao-padrao: 250ms cubic-bezier(0.16, 1, 0.3, 1);
   --transicao-revelacao: 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --------------------------------------------------------------------------
-   2. RESET MODERNO E ACESSIBILIDADE GLOBAL
-   -------------------------------------------------------------------------- */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -116,7 +93,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Bloqueio de rolagem quando o menu mobile estiver ativo */
 body.menu-aberto-bloqueio {
   overflow: hidden;
 }
@@ -137,7 +113,6 @@ ul {
   list-style: none;
 }
 
-/* Anel de Foco Estrito para Navegação por Teclado (:focus-visible) */
 :focus:not(:focus-visible) {
   outline: none;
 }
@@ -148,7 +123,6 @@ ul {
   border-radius: inherit;
 }
 
-/* Link Oculto para Pular Diretamente ao Conteúdo (Acessibilidade W3C) */
 .pular-navegacao {
   position: absolute;
   top: -100px;
@@ -169,7 +143,6 @@ ul {
   top: var(--espaco-4);
 }
 
-/* Container Responsivo Padronizado */
 .conteiner {
   width: 100%;
   max-width: 1240px;
@@ -179,15 +152,12 @@ ul {
   padding-right: var(--espaco-conteiner-x);
 }
 
-/* --------------------------------------------------------------------------
-   3. COMPONENTES INTERATIVOS BASE (BOTÕES & ETIQUETAS)
-   -------------------------------------------------------------------------- */
 .botao {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--espaco-2);
-  min-height: 46px; /* Alvo de toque de acessibilidade (touch target) */
+  min-height: 46px;
   font-family: var(--fonte-principal);
   font-size: var(--tamanho-texto-sm);
   font-weight: 600;
@@ -198,10 +168,10 @@ ul {
   border-radius: var(--raio-medio);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: 
-    transform var(--transicao-rapida), 
-    background-color var(--transicao-rapida), 
-    border-color var(--transicao-rapida), 
+  transition:
+    transform var(--transicao-rapida),
+    background-color var(--transicao-rapida),
+    border-color var(--transicao-rapida),
     box-shadow var(--transicao-rapida);
 }
 
@@ -243,7 +213,6 @@ ul {
   transform: translateX(3px);
 }
 
-/* Rótulos de Seção Técnicos */
 .secao-cabecalho {
   margin-bottom: var(--espaco-10);
   max-width: 720px;
@@ -272,9 +241,6 @@ ul {
   line-height: 1.6;
 }
 
-/* --------------------------------------------------------------------------
-   4. CABEÇALHO (HEADER COM EFEITO GLASSMORPHISM & MENU MOBILE)
-   -------------------------------------------------------------------------- */
 .cabecalho {
   position: sticky;
   top: 0;
@@ -295,7 +261,6 @@ ul {
   padding-bottom: var(--espaco-2);
 }
 
-/* Logotipo */
 .cabecalho-logo {
   display: inline-flex;
   align-items: center;
@@ -320,7 +285,6 @@ ul {
   color: var(--cor-acento-azul);
 }
 
-/* Botão Hambúrguer Mobile */
 .cabecalho-hamburguer {
   display: flex;
   flex-direction: column;
@@ -350,7 +314,6 @@ ul {
   transition: transform var(--transicao-padrao), opacity var(--transicao-padrao);
 }
 
-/* Estado de Menu Aberto no Ícone Hambúrguer */
 .cabecalho-hamburguer.aberto .hamburguer-barra:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
@@ -364,7 +327,6 @@ ul {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Navegação Mobile (Gaveta Recolhível) */
 .cabecalho-navegacao {
   position: absolute;
   top: 100%;
@@ -380,9 +342,9 @@ ul {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
-  transition: 
-    opacity var(--transicao-padrao), 
-    transform var(--transicao-padrao), 
+  transition:
+    opacity var(--transicao-padrao),
+    transform var(--transicao-padrao),
     visibility var(--transicao-padrao);
 }
 
@@ -428,14 +390,11 @@ ul {
   color: #ffffff;
 }
 
-/* --------------------------------------------------------------------------
-   5. SEÇÃO INÍCIO (HERO SECTION - MINIMALIST & EDITORIAL)
-   -------------------------------------------------------------------------- */
 .secao-inicio {
   padding-top: clamp(3.5rem, 6vw, 6rem);
   padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
-  background-image: 
+  background-image:
     radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12), transparent 60%),
     radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.04), transparent 45%);
 }
@@ -449,7 +408,6 @@ ul {
   max-width: 920px;
 }
 
-/* Indicador de Status / Badge Superior */
 .inicio-indicador {
   display: inline-flex;
   align-items: center;
@@ -477,7 +435,6 @@ ul {
   letter-spacing: 0.02em;
 }
 
-/* Headline Principal */
 .inicio-titulo {
   font-size: var(--tamanho-texto-hero);
   font-weight: 800;
@@ -502,7 +459,6 @@ ul {
   margin-bottom: var(--espaco-5);
 }
 
-/* Nota de Compromisso em Monospace */
 .inicio-nota {
   display: inline-flex;
   align-items: center;
@@ -521,16 +477,12 @@ ul {
   line-height: 1.4;
 }
 
-/* --------------------------------------------------------------------------
-   6. SEÇÃO SOBRE (BENTO GRID - FILOSOFIA & METODOLOGIA)
-   -------------------------------------------------------------------------- */
 .secao-sobre {
   padding-top: var(--espaco-secao-y);
   padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
 }
 
-/* Grade de Artigos (Bento Cards Asimétricos) */
 .sobre-grade {
   display: flex;
   flex-direction: column;
@@ -588,7 +540,6 @@ ul {
   color: var(--cor-texto-secundario);
 }
 
-/* Bloco de Metodologia Prática */
 .sobre-metodologia {
   background-color: var(--cor-fundo-superficie);
   border: 1px solid var(--cor-borda-padrao);
@@ -668,23 +619,18 @@ ul {
   color: var(--cor-texto-secundario);
 }
 
-/* --------------------------------------------------------------------------
-   7. SEÇÃO CURSOS (GRADE RESPONSIVA CSS GRID & CARDS PREMIUM)
-   -------------------------------------------------------------------------- */
 .secao-cursos {
   padding-top: var(--espaco-secao-y);
   padding-bottom: var(--espaco-secao-y);
   border-bottom: 1px solid var(--cor-borda-sutil);
 }
 
-/* Layout Obrigatório da Grade de Cursos utilizando Display: Grid */
 .grade-cursos {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--espaco-6);
 }
 
-/* Card Individual de Curso (Display: Flex Interno com Alinhamento Perfeito) */
 .cartao-curso {
   display: flex;
   flex-direction: column;
@@ -695,10 +641,9 @@ ul {
   box-shadow: var(--sombra-card);
   position: relative;
 
-  /* Estados Iniciais para Efeito de Entrada via IntersectionObserver */
   opacity: 0;
   transform: translateY(24px);
-  transition: 
+  transition:
     opacity var(--transicao-revelacao),
     transform var(--transicao-revelacao),
     border-color var(--transicao-padrao),
@@ -707,13 +652,11 @@ ul {
   will-change: opacity, transform;
 }
 
-/* Estado Ativado pelo IntersectionObserver */
 .cartao-curso.revelado {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Efeito Hover Sutil e Não Agressivo */
 .cartao-curso:hover {
   transform: translateY(-4px);
   border-color: var(--cor-borda-realce);
@@ -728,7 +671,6 @@ ul {
   margin-bottom: var(--espaco-4);
 }
 
-/* Badges e Etiquetas Muted Pastels (Minimalist UI) */
 .etiqueta-nivel {
   display: inline-flex;
   align-items: center;
@@ -783,7 +725,7 @@ ul {
   line-height: 1.7;
   color: var(--cor-texto-secundario);
   margin-bottom: var(--espaco-6);
-  flex-grow: 1; /* Garante que o rodapé alinhe perfeitamente na base do card */
+  flex-grow: 1;
 }
 
 .cartao-rodape {
@@ -796,7 +738,7 @@ ul {
   display: inline-flex;
   align-items: center;
   gap: var(--espaco-2);
-  min-height: 44px; /* Touch target */
+  min-height: 44px;
   font-size: var(--tamanho-texto-sm);
   font-weight: 600;
   color: var(--cor-acento-azul);
@@ -817,9 +759,6 @@ ul {
   transform: translateX(3px);
 }
 
-/* --------------------------------------------------------------------------
-   8. SEÇÃO TURING (PAINEL DO ASSISTENTE ACADÊMICO)
-   -------------------------------------------------------------------------- */
 .secao-turing {
   padding-top: var(--espaco-secao-y);
   padding-bottom: var(--espaco-secao-y);
@@ -865,9 +804,6 @@ ul {
   align-items: flex-start;
 }
 
-/* --------------------------------------------------------------------------
-   9. RODAPÉ DA PLATAFORMA
-   -------------------------------------------------------------------------- */
 .rodape {
   padding-top: var(--espaco-12);
   padding-bottom: var(--espaco-12);
@@ -894,11 +830,6 @@ ul {
   padding-top: var(--espaco-4);
 }
 
-/* --------------------------------------------------------------------------
-   10. PROGRESSÃO RESPONSIVA (MEDIA QUERIES - MOBILE FIRST)
-   -------------------------------------------------------------------------- */
-
-/* Breakpoint Pequeno / Intermediário (min-width: 640px) */
 @media (min-width: 640px) {
   .inicio-acoes {
     flex-direction: row;
@@ -906,9 +837,8 @@ ul {
   }
 }
 
-/* Breakpoint Tablet / Desktop Médio (min-width: 768px) */
 @media (min-width: 768px) {
-  /* Oculta botão de hambúrguer e expande navegação em linha horizontal */
+
   .cabecalho-hamburguer {
     display: none;
   }
@@ -937,24 +867,20 @@ ul {
     display: block;
   }
 
-  /* Bento Grid 2 Colunas para Seção Sobre */
   .sobre-grade {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Metodologia Prática em 3 Colunas */
   .metodologia-passos {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
   }
 
-  /* Grade de Cursos passa para 2 colunas */
   .grade-cursos {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Painel do Turing alinha texto e CTA lado a lado */
   .turing-painel {
     flex-direction: row;
     align-items: center;
@@ -965,7 +891,6 @@ ul {
     max-width: 65%;
   }
 
-  /* Rodapé alinha marca e direitos autorais */
   .rodape-conteiner {
     flex-direction: row;
     align-items: center;
@@ -978,17 +903,13 @@ ul {
   }
 }
 
-/* Breakpoint Desktop Amplo (min-width: 1024px) */
 @media (min-width: 1024px) {
-  /* Grade dos 6 Cursos expande para 3 colunas perfeitas */
+
   .grade-cursos {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* --------------------------------------------------------------------------
-   11. PREFERÊNCIA DE MOVIMENTO REDUZIDO (ACESSIBILIDADE PREFERS-REDUCED-MOTION)
-   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

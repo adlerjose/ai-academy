@@ -5,28 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Academy | Formação de Elite em Inteligência Artificial</title>
   <meta name="description" content="A AI Academy une rigor acadêmico e desenvolvimento prático de software para capacitar desenvolvedores a projetar e implementar sistemas inteligentes reais.">
-  
-  <!-- Pré-conexão e carregamento de fontes do Google Fonts: Plus Jakarta Sans e JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <!-- Folha de Estilos Externa -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Script de Interações da Interface (Vanilla JS) -->
   <script src="js/ui.js" defer></script>
 </head>
 <body>
 
-  <!-- LINK DE ACESSIBILIDADE PARA PULAR A NAVEGAÇÃO DIRETAMENTE AO CONTEÚDO -->
   <a href="#conteudo-principal" class="pular-navegacao">Pular para o conteúdo principal</a>
 
-  <!-- CABEÇALHO DA PLATAFORMA (GLASSMORPHISM & ACCESSIBILITY) -->
   <header class="cabecalho">
     <div class="conteiner cabecalho-barra">
-      
-      <!-- Marca / Logo -->
       <a href="#inicio" class="cabecalho-logo" aria-label="AI Academy - Retornar à página inicial">
         <svg class="cabecalho-logo-icone" width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
           <rect width="30" height="30" rx="8" fill="#0b1120" stroke="#1e293b" stroke-width="1.5"/>
@@ -37,20 +28,18 @@
         <span class="cabecalho-logo-texto">AI <strong class="logo-destaque">Academy</strong></span>
       </a>
 
-      <!-- Botão Hambúrguer para Dispositivos Móveis -->
-      <button 
-        type="button" 
-        class="cabecalho-hamburguer" 
-        id="botao-menu-mobile" 
-        aria-label="Abrir menu de navegação" 
-        aria-expanded="false" 
+      <button
+        type="button"
+        class="cabecalho-hamburguer"
+        id="botao-menu-mobile"
+        aria-label="Abrir menu de navegação"
+        aria-expanded="false"
         aria-controls="navegacao-principal">
         <span class="hamburguer-barra" aria-hidden="true"></span>
         <span class="hamburguer-barra" aria-hidden="true"></span>
         <span class="hamburguer-barra" aria-hidden="true"></span>
       </button>
 
-      <!-- Navegação Principal -->
       <nav id="navegacao-principal" class="cabecalho-navegacao" aria-label="Navegação principal">
         <ul class="cabecalho-menu">
           <li class="cabecalho-item"><a href="#inicio" class="cabecalho-link">Início</a></li>
@@ -63,31 +52,24 @@
     </div>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <main id="conteudo-principal">
 
-    <!-- SEÇÃO INÍCIO (HERO) -->
     <section id="inicio" class="secao-inicio" aria-labelledby="titulo-inicio">
       <div class="conteiner secao-inicio-conteiner">
         <div class="inicio-bloco-conteudo">
-          
-          <!-- Indicador Utilitário / Badge de Posicionamento -->
           <div class="inicio-indicador">
             <span class="indicador-pulso" aria-hidden="true"></span>
             <span class="indicador-texto">Formação de Elite em Engenharia de IA</span>
           </div>
 
-          <!-- Headline Principal com Tipografia Fluida -->
           <h1 id="titulo-inicio" class="inicio-titulo">
             Supere a superficialidade.<br class="quebra-desktop"> Construa a arquitetura da Inteligência Artificial.
           </h1>
 
-          <!-- Subtítulo Analítico -->
           <p class="inicio-subtitulo">
             O mercado está repleto de operadores de ferramentas; o futuro pertence aos desenvolvedores que compreendem a mecânica profunda dos modelos. Na AI Academy, unimos rigor acadêmico e desenvolvimento prático de software para transformar estudantes e programadores em especialistas capacitados a projetar, integrar e escalar produtos inteligentes com absoluta autonomia técnica.
           </p>
 
-          <!-- Chamadas para Ação (CTAs) -->
           <div class="inicio-acoes">
             <a href="#cursos" class="botao botao-primario">
               <span>Explorar Trilhas de Formação</span>
@@ -100,7 +82,6 @@
             </a>
           </div>
 
-          <!-- Nota de Compromisso Técnico -->
           <div class="inicio-nota">
             <span class="nota-prefixo" aria-hidden="true">///</span>
             <p class="nota-texto">Sem atalhos ilusórios. Formação estruturada do código à arquitetura.</p>
@@ -110,11 +91,8 @@
       </div>
     </section>
 
-    <!-- SEÇÃO SOBRE (FILOSOFIA, AUTORIDADE & METODOLOGIA) -->
     <section id="sobre" class="secao-sobre" aria-labelledby="titulo-sobre">
       <div class="conteiner">
-        
-        <!-- Cabeçalho de Seção -->
         <div class="secao-cabecalho">
           <span class="secao-rotulo">Primeiros Princípios</span>
           <h2 id="titulo-sobre" class="secao-titulo">Sobre a AI Academy</h2>
@@ -123,10 +101,7 @@
           </p>
         </div>
 
-        <!-- Grade Bento: Proposta Pedagógica & Autoridade Científica -->
         <div class="sobre-grade">
-          
-          <!-- Bloco 1: Proposta Pedagógica -->
           <article class="sobre-artigo">
             <div class="sobre-artigo-cabecalho">
               <span class="sobre-artigo-indice">01</span>
@@ -138,7 +113,6 @@
             </p>
           </article>
 
-          <!-- Bloco 2: Autoridade e Padrão Científico -->
           <article class="sobre-artigo">
             <div class="sobre-artigo-cabecalho">
               <span class="sobre-artigo-indice">02</span>
@@ -152,7 +126,6 @@
 
         </div>
 
-        <!-- Bloco de Metodologia Prática (Hands-on) -->
         <div class="sobre-metodologia">
           <div class="metodologia-cabecalho">
             <span class="secao-rotulo secao-rotulo-metodologia">Ciclo Pedagógico Ativo</span>
@@ -163,7 +136,6 @@
           </div>
 
           <div class="metodologia-passos">
-            
             <div class="metodologia-passo">
               <div class="passo-cabecalho">
                 <span class="passo-etiqueta">Etapa 01</span>
@@ -197,11 +169,8 @@
       </div>
     </section>
 
-    <!-- SEÇÃO CURSOS (VITRINE DE 6 CARDS EM CSS GRID) -->
     <section id="cursos" class="secao-cursos" aria-labelledby="titulo-cursos">
       <div class="conteiner">
-        
-        <!-- Cabeçalho de Seção -->
         <div class="secao-cabecalho">
           <span class="secao-rotulo">Trilhas de Especialização</span>
           <h2 id="titulo-cursos" class="secao-titulo">Cursos e Formações</h2>
@@ -210,10 +179,8 @@
           </p>
         </div>
 
-        <!-- Grade dos 6 Cards de Cursos com layout obrigatório em CSS Grid -->
         <div class="grade-cursos">
 
-          <!-- Card 1 -->
           <article class="cartao-curso" style="--cartao-indice: 0;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-iniciante">Iniciante a Intermediário</span>
@@ -233,7 +200,6 @@
             </div>
           </article>
 
-          <!-- Card 2 -->
           <article class="cartao-curso" style="--cartao-indice: 1;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-iniciante">Iniciante a Intermediário</span>
@@ -253,7 +219,6 @@
             </div>
           </article>
 
-          <!-- Card 3 -->
           <article class="cartao-curso" style="--cartao-indice: 2;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-medio">Intermediário</span>
@@ -273,7 +238,6 @@
             </div>
           </article>
 
-          <!-- Card 4 -->
           <article class="cartao-curso" style="--cartao-indice: 3;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-avancado">Intermediário a Avançado</span>
@@ -293,7 +257,6 @@
             </div>
           </article>
 
-          <!-- Card 5 -->
           <article class="cartao-curso" style="--cartao-indice: 4;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-avancado">Avançado</span>
@@ -313,7 +276,6 @@
             </div>
           </article>
 
-          <!-- Card 6 -->
           <article class="cartao-curso" style="--cartao-indice: 5;">
             <div class="cartao-cabecalho">
               <span class="etiqueta-nivel etiqueta-nivel-especialista">Avançado</span>
@@ -337,7 +299,6 @@
       </div>
     </section>
 
-    <!-- SEÇÃO TURING (EMBASAMENTO DO ASSISTENTE VIRTUAL) -->
     <section id="turing" class="secao-turing" aria-labelledby="titulo-turing">
       <div class="conteiner">
         <div class="turing-painel">
@@ -359,7 +320,6 @@
 
   </main>
 
-  <!-- RODAPÉ DA PLATAFORMA -->
   <footer class="rodape">
     <div class="conteiner rodape-conteiner">
       <div class="rodape-marca">
