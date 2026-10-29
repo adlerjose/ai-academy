@@ -804,6 +804,109 @@ ul {
   align-items: flex-start;
 }
 
+.secao-contato {
+  padding: var(--espaco-secao-y) 0;
+  border-bottom: 1px solid var(--cor-borda-sutil);
+  background: linear-gradient(180deg, var(--cor-fundo-superficie), var(--cor-fundo-base));
+}
+
+.contato-grade {
+  display: grid;
+  gap: var(--espaco-8);
+  align-items: start;
+}
+
+.contato-introducao {
+  max-width: 540px;
+}
+
+.contato-email {
+  margin-top: var(--espaco-6);
+  font-size: var(--tamanho-texto-sm);
+}
+
+.contato-email a {
+  color: var(--cor-acento-azul);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.formulario-contato {
+  display: grid;
+  gap: var(--espaco-5);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-container);
+  box-shadow: var(--sombra-card);
+}
+
+.formulario-linha {
+  display: grid;
+  gap: var(--espaco-5);
+}
+
+.formulario-campo {
+  display: grid;
+  gap: var(--espaco-2);
+}
+
+.formulario-campo label {
+  color: var(--cor-texto-primario);
+  font-size: var(--tamanho-texto-sm);
+  font-weight: 600;
+}
+
+.formulario-campo label span {
+  color: var(--cor-acento-azul);
+}
+
+.formulario-campo input,
+.formulario-campo select,
+.formulario-campo textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: var(--espaco-3) var(--espaco-4);
+  color: var(--cor-texto-primario);
+  background: var(--cor-fundo-base);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-medio);
+  font: inherit;
+  transition: border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+}
+
+.formulario-campo textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.formulario-campo input::placeholder,
+.formulario-campo textarea::placeholder {
+  color: var(--cor-texto-silenciado);
+}
+
+.formulario-campo input:focus,
+.formulario-campo select:focus,
+.formulario-campo textarea:focus {
+  outline: none;
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px var(--cor-acento-azul-fundo);
+}
+
+.formulario-campo select option {
+  color: var(--cor-texto-primario);
+  background: var(--cor-fundo-superficie);
+}
+
+.formulario-nota {
+  color: var(--cor-texto-silenciado);
+  font-size: var(--tamanho-texto-xs);
+}
+
+.formulario-enviar {
+  width: 100%;
+}
+
 .rodape {
   padding-top: var(--espaco-12);
   padding-bottom: var(--espaco-12);
@@ -889,6 +992,16 @@ ul {
 
   .turing-identidade {
     max-width: 65%;
+  }
+
+  .contato-grade {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--espaco-12);
+    align-items: center;
+  }
+
+  .formulario-linha {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .rodape-conteiner {
