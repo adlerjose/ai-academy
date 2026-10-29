@@ -46,6 +46,7 @@
           <li class="cabecalho-item"><a href="#sobre" class="cabecalho-link">Sobre</a></li>
           <li class="cabecalho-item"><a href="#cursos" class="cabecalho-link">Cursos</a></li>
           <li class="cabecalho-item"><a href="#turing" class="cabecalho-link cabecalho-link-destaque">Tutor Turing</a></li>
+          <li class="cabecalho-item"><a href="#contato" class="cabecalho-link">Inscreva-se</a></li>
         </ul>
       </nav>
 
@@ -77,8 +78,8 @@
                 <path d="M3 8h10M9 4l4 4-4 4"/>
               </svg>
             </a>
-            <a href="#turing" class="botao botao-secundario">
-              <span>Diagnosticar Ponto de Partida com o Turing</span>
+            <a href="#contato" class="botao botao-secundario">
+              <span>Inscreva-se ou fale conosco</span>
             </a>
           </div>
 
@@ -310,11 +311,54 @@
             </p>
           </div>
           <div class="turing-chamada">
-            <a href="mailto:contato@aiacademy.edu.br?subject=Diagnostico%20de%20Carreira%20com%20o%20Turing" class="botao botao-primario">
-              <span>Iniciar Diagnóstico com o Turing</span>
+            <a href="#contato" class="botao botao-primario">
+              <span>Falar com a equipe</span>
             </a>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="contato" class="secao-contato" aria-labelledby="titulo-contato">
+      <div class="conteiner contato-grade">
+        <div class="contato-introducao">
+          <span class="secao-rotulo">Próximo passo</span>
+          <h2 id="titulo-contato" class="secao-titulo">Inscreva-se ou converse com a equipe</h2>
+          <p class="secao-descricao">Conte um pouco sobre seus objetivos. Nossa equipe entrará em contato para orientar você sobre as trilhas e o processo de inscrição.</p>
+          <p class="contato-email">Prefere e-mail? <a href="mailto:contato@aiacademy.edu.br">contato@aiacademy.edu.br</a></p>
+        </div>
+
+        <form class="formulario-contato" action="mailto:contato@aiacademy.edu.br" method="post" enctype="text/plain">
+          <div class="formulario-campo">
+            <label for="contato-nome">Nome completo <span aria-hidden="true">*</span></label>
+            <input id="contato-nome" name="nome" type="text" autocomplete="name" required>
+          </div>
+          <div class="formulario-linha">
+            <div class="formulario-campo">
+              <label for="contato-email">E-mail <span aria-hidden="true">*</span></label>
+              <input id="contato-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="formulario-campo">
+              <label for="contato-telefone">Telefone (opcional)</label>
+              <input id="contato-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel">
+            </div>
+          </div>
+          <div class="formulario-campo">
+            <label for="contato-interesse">Tenho interesse em</label>
+            <select id="contato-interesse" name="interesse">
+              <option value="" selected>Selecione uma opção</option>
+              <option value="inscricao">Fazer uma inscrição</option>
+              <option value="orientacao">Receber orientação sobre os cursos</option>
+              <option value="parceria">Parcerias e outros assuntos</option>
+            </select>
+          </div>
+          <div class="formulario-campo">
+            <label for="contato-mensagem">Mensagem <span aria-hidden="true">*</span></label>
+            <textarea id="contato-mensagem" name="mensagem" rows="5" required></textarea>
+          </div>
+          <p class="formulario-nota">Os campos marcados com * são obrigatórios.</p>
+          <button class="botao botao-primario formulario-enviar" type="submit">Enviar mensagem</button>
+        </form>
       </div>
     </section>
 
