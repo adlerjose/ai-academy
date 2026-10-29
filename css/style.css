@@ -893,6 +893,14 @@ ul {
   box-shadow: 0 0 0 3px var(--cor-acento-azul-fundo);
 }
 
+.formulario-campo .campo-invalido {
+  border-color: #fb7185;
+}
+
+.formulario-campo .campo-invalido:focus {
+  box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.16);
+}
+
 .formulario-campo select option {
   color: var(--cor-texto-primario);
   background: var(--cor-fundo-superficie);
