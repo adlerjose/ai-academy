@@ -60,6 +60,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const formularioContato = document.querySelector('.formulario-contato');
+
+  if (formularioContato) {
+    const campoNome = formularioContato.querySelector('[name="nome"]');
+    const campoMensagem = formularioContato.querySelector('[name="mensagem"]');
+    const campos = formularioContato.querySelectorAll('input, select, textarea');
+
+    const validarTextoObrigatorio = (campo, mensagem) => {
+      campo.setCustomValidity(campo.value.trim() ? '' : mensagem);
+    };
+
+    campoNome.addEventListener('input', () => {
+      validarTextoObrigatorio(campoNome, 'Informe seu nome completo.');
+    });
+
+    campoMensagem.addEventListener('input', () => {
+      validarTextoObrigatorio(campoMensagem, 'Escreva uma mensagem antes de enviar.');
+    });
+
+    campos.forEach((campo) => {
+      campo.addEventListener('blur', () => {
+        campo.classList.toggle('campo-invalido', !campo.checkValidity());
+      });
+
+      campo.addEventListener('input', () => {
+        if (campo.checkValidity()) {
+          campo.classList.remove('campo-invalido');
+        }
+      });
+    });
+
+    formularioContato.addEventListener('submit', (evento) => {
+      validarTextoObrigatorio(campoNome, 'Informe seu nome completo.');
+      validarTextoObrigatorio(campoMensagem, 'Escreva uma mensagem antes de enviar.');
+
+      if (!formularioContato.checkValidity()) {
+        evento.preventDefault();
+        const primeiroCampoInvalido = formularioContato.querySelector(':invalid');
+        campos.forEach((campo) => {
+          campo.classList.toggle('campo-invalido', !campo.checkValidity());
+        });
+        primeiroCampoInvalido.reportValidity();
+      }
+    });
+  }
+
   const cartoesCursos = document.querySelectorAll('.cartao-curso');
 
   if (cartoesCursos.length > 0) {
