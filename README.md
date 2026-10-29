@@ -26,7 +26,7 @@ O projeto foi construído utilizando tecnologias web fundamentais (Vanilla Stack
   * Variáveis CSS customizadas (`:root`) baseadas em um Design System exclusivo.
   * Layout flexível e bidimensional utilizando CSS Grid e Flexbox.
   * Tipografia fluida com função `clamp()` e fontes do Google Fonts (*Plus Jakarta Sans* e *JetBrains Mono*).
-* **JavaScript Vanilla (ES6+):** Manipulação eficiente da DOM, controle de estados interativos e integração assíncrona.
+* **JavaScript Vanilla (ES6+):** Interações da interface, navegação mobile, revelação dos cards de cursos e validação do formulário.
 
 ---
 
@@ -39,7 +39,9 @@ O projeto foi construído utilizando tecnologias web fundamentais (Vanilla Stack
    * Vitrine estruturada com 6 formações de IA e desenvolvimento moderno.
    * Exibição clara de títulos, ementas resumidas, níveis de proficiência e carga horária.
 3. **Formulário de Contato e Atendimento:**
-   * Canal direto para dúvidas, inscrições e contato com a equipe pedagógica.
+   * Formulário responsivo para inscrição, orientação sobre cursos, parcerias e contato com a equipe pedagógica.
+   * Campos de nome, e-mail e mensagem com preenchimento obrigatório, validação de formato do e-mail e indicação visual dos campos inválidos.
+   * O envio utiliza `mailto:contato@aiacademy.edu.br` e depende de um aplicativo de e-mail configurado no dispositivo. O projeto não possui integração com servidor para receber os dados automaticamente.
 4. **Assistente Virtual (Turing):**
    * Interface de acolhimento baseada na persona de Alan Turing, criada para diagnosticar a bagagem técnica do estudante e indicar a trilha de cursos ideal sem sobrecarga de informações.
 
@@ -80,10 +82,9 @@ ai-academy/
 ├── README.md               # Documentação técnica do projeto
 ├── .gitignore              # Regras de exclusão do Git
 ├── css/
-│   └── style.              # Estilos principais, variáveis :root e regras de layout
-├── js/                     # Scripts da aplicação (interações e lógica de front-end)
-├── img/                    # Imagens, ícones vetoriais e recursos visuais
-└── docs/                   # [Local/Ignorado] Documentos de ideação e persona
+│   └── style.css           # Estilos, variáveis :root e regras de layout
+└── js/
+    └── ui.js               # Menu mobile, animações dos cards e validação do formulário
 ```
 
 ---
