@@ -44,8 +44,13 @@ yarn-error.log*
 *.tmp
 *.temp
 
-# Variaveis de ambiente e credenciais locais (prevencao futura)
+# Variaveis de ambiente e credenciais locais (a chave da API NUNCA deve ser versionada)
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
+
+# Dependencias do Node.js
+node_modules/
 
