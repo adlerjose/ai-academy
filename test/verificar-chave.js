@@ -14,9 +14,11 @@ const RAIZ = path.join(__dirname, '..');
 const PUBLICOS = ['index.html', 'css', 'js'];
 const PADROES = [
   [/sk-(proj-)?[A-Za-z0-9_-]{20,}/, 'formato de chave da OpenAI'],
-  [/OPENAI_API_KEY/, 'referência à variável da chave'],
+  [/AQ\.[A-Za-z0-9_-]{20,}/, 'formato de chave da Google Cloud / Vertex AI'],
+  [/AIza[A-Za-z0-9_-]{30,}/, 'formato de chave da Google Gemini API'],
+  [/(OPENAI|GEMINI|GOOGLE|AI)_API_KEY/, 'referência à variável da chave'],
   [/Authorization\s*:\s*['"`]Bearer/i, 'cabeçalho Authorization no frontend'],
-  [/api\.openai\.com/, 'chamada direta ao provedor a partir do navegador']
+  [/api\.openai\.com|generativelanguage\.googleapis\.com|aiplatform\.googleapis\.com/, 'chamada direta ao provedor a partir do navegador']
 ];
 
 const listar = (alvo) => {
@@ -54,8 +56,11 @@ try {
 }
 
 const exemplo = fs.readFileSync(path.join(RAIZ, '.env.example'), 'utf8');
-if (/^OPENAI_API_KEY=\s*$/m.test(exemplo)) ok('.env.example não contém credencial');
-else falhar('.env.example parece conter uma chave preenchida');
+if (/^OPENAI_API_KEY=\s*$/m.test(exemplo) && /^GEMINI_API_KEY=\s*$/m.test(exemplo)) {
+  ok('.env.example não contém credencial');
+} else {
+  falhar('.env.example parece conter uma chave preenchida');
+}
 
 console.log(falhas ? `\n${falhas} problema(s) encontrado(s).\n` : '\nNenhuma credencial exposta.\n');
 process.exit(falhas ? 1 : 0);
