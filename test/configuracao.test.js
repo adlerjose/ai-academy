@@ -10,6 +10,9 @@ let app;
 
 test.before(async () => {
   process.env.OPENAI_API_KEY = '';
+  process.env.GEMINI_API_KEY = '';
+  process.env.GOOGLE_API_KEY = '';
+  process.env.AI_API_KEY = '';
   process.env.RATE_LIMIT_MAX = '3';
   process.env.RATE_LIMIT_WINDOW_MS = '60000';
   app = await iniciarApp();
