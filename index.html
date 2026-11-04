@@ -9,8 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chatbot.css">
 
   <script src="js/ui.js" defer></script>
+  <script src="js/chatbot.js" defer></script>
 </head>
 <body>
 
@@ -311,7 +313,13 @@
             </p>
           </div>
           <div class="turing-chamada">
-            <a href="#contato" class="botao botao-primario">
+            <button type="button" class="botao botao-primario" data-turing-abrir aria-controls="turing-chat" hidden>
+              <span>Conversar com o Turing</span>
+              <svg class="botao-icone" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3 8h10M9 4l4 4-4 4"/>
+              </svg>
+            </button>
+            <a href="#contato" class="botao botao-secundario">
               <span>Falar com a equipe</span>
             </a>
           </div>
@@ -375,6 +383,106 @@
       </div>
     </div>
   </footer>
+
+  <!-- Assistente virtual Turing (controlado por js/chatbot.js; oculto sem JavaScript) -->
+  <div class="turing-widget" id="turing-widget" hidden>
+    <button
+      type="button"
+      class="turing-lancador"
+      id="turing-lancador"
+      aria-label="Abrir conversa com o Turing, assistente virtual"
+      aria-expanded="false"
+      aria-controls="turing-chat">
+      <svg class="turing-lancador-icone turing-lancador-icone-abrir" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12Z"/>
+        <path d="M9 10.5h6M12 10.5v4"/>
+      </svg>
+      <svg class="turing-lancador-icone turing-lancador-icone-fechar" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+      <span class="turing-lancador-rotulo" aria-hidden="true">Turing</span>
+    </button>
+
+    <section
+      class="turing-chat"
+      id="turing-chat"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="turing-chat-nome"
+      aria-describedby="turing-chat-status"
+      hidden>
+
+      <header class="turing-chat-cabecalho">
+        <div class="turing-chat-identidade">
+          <span class="turing-avatar" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" focusable="false">
+              <rect x="0.75" y="0.75" width="38.5" height="38.5" rx="11" fill="#0b1120" stroke="#1e293b" stroke-width="1.5"/>
+              <path d="M12 13h16" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M20 13v15" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="20" cy="29" r="2.2" fill="#38bdf8"/>
+            </svg>
+          </span>
+          <div class="turing-chat-textos">
+            <h2 class="turing-chat-nome" id="turing-chat-nome">Turing</h2>
+            <p class="turing-chat-status" id="turing-chat-status" data-estado="verificando">
+              <span class="turing-status-ponto" aria-hidden="true"></span>
+              <span class="turing-status-texto">Verificando conexão…</span>
+            </p>
+          </div>
+        </div>
+        <div class="turing-chat-acoes">
+          <button type="button" class="turing-acao" id="turing-nova-conversa" aria-label="Iniciar nova conversa" title="Nova conversa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M3 12a9 9 0 1 0 3-6.7"/>
+              <path d="M3 4v5h5"/>
+            </svg>
+          </button>
+          <button type="button" class="turing-acao" id="turing-fechar" aria-label="Fechar conversa" title="Fechar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="turing-chat-corpo" id="turing-chat-corpo">
+        <ol class="turing-mensagens" id="turing-mensagens" role="log" aria-live="polite" aria-relevant="additions" aria-label="Histórico da conversa com o Turing"></ol>
+
+        <div class="turing-sugestoes" id="turing-sugestoes" role="group" aria-label="Sugestões para começar">
+          <button type="button" class="turing-sugestao">Estou começando na programação</button>
+          <button type="button" class="turing-sugestao">Já programo em Python</button>
+          <button type="button" class="turing-sugestao">Quero criar aplicações com LLMs</button>
+          <button type="button" class="turing-sugestao">Quais formações vocês oferecem?</button>
+        </div>
+      </div>
+
+      <form class="turing-formulario" id="turing-formulario" novalidate>
+        <label for="turing-campo" class="turing-visualmente-oculto">Mensagem para o Turing</label>
+        <div class="turing-formulario-linha">
+          <textarea
+            id="turing-campo"
+            class="turing-campo"
+            name="mensagem"
+            rows="1"
+            maxlength="1000"
+            placeholder="Escreva sua mensagem…"
+            autocomplete="off"
+            aria-describedby="turing-dica turing-contador"
+            enterkeyhint="send"></textarea>
+          <button type="submit" class="turing-enviar" id="turing-enviar" aria-label="Enviar mensagem">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="turing-formulario-rodape">
+          <p class="turing-dica" id="turing-dica" aria-live="polite">Enter envia · Shift+Enter quebra linha</p>
+          <p class="turing-contador" id="turing-contador" aria-live="off"><span id="turing-contador-valor">0</span>/1000</p>
+        </div>
+        <p class="turing-aviso">O Turing utiliza IA e pode cometer erros. Não compartilhe senhas ou dados sensíveis.</p>
+      </form>
+    </section>
+  </div>
 
 </body>
 </html>
