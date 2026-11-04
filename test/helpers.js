@@ -7,6 +7,7 @@
  */
 
 const http = require('node:http');
+require('dotenv').config({ quiet: true });
 
 const iniciarProvedorFalso = async () => {
   const estado = {
