@@ -30,7 +30,7 @@ O projeto combina uma interface leve em **Vanilla Stack** com um backend em **No
   * **JavaScript Vanilla (ES6+):** Interações da interface, menu mobile, revelação dos cards de cursos, validação do formulário e cliente do chatbot via Fetch API.
 * **Backend e Inteligência Artificial:**
   * **Node.js + Express:** Servidor HTTP que entrega os arquivos públicos do frontend e expõe o endpoint `POST /api/chat`.
-  * **SDK Oficial da OpenAI (`openai`):** Comunicação com o modelo de linguagem (configurável por variável de ambiente, padrão `gpt-4.1-mini`).
+  * **SDKs Oficiais de IA (`@google/genai` e `openai`):** Comunicação com modelos Google Gemini (padrão `gemini-3.6-flash` com fallback automático para `gemini-3.5-flash`) ou OpenAI (`gpt-4.1-mini`), configuráveis por variável de ambiente.
   * **`dotenv` e `express-rate-limit`:** Gerenciamento de variáveis de ambiente e proteção contra abuso do endpoint.
 
 ---
@@ -74,7 +74,9 @@ npm install
 
 ### 2. Obter e configurar a chave da API
 
-1. Acesse [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys), autentique-se na sua conta OpenAI e clique em **"Create new secret key"** para gerar uma chave (`sk-...`).
+1. Obtenha uma chave de API do provedor desejado:
+   * **Google Gemini / Google AI Studio:** [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+   * **OpenAI (opcional):** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 2. Crie o arquivo `.env` na raiz do projeto copiando o modelo `.env.example`:
 
    ```bash
@@ -83,11 +85,11 @@ npm install
 
 ### 3. Preencher o arquivo `.env`
 
-Abra o arquivo `.env` em um editor de texto e preencha ao menos a variável `OPENAI_API_KEY`:
+Abra o arquivo `.env` em um editor de texto e preencha a chave da API (`GEMINI_API_KEY` ou `OPENAI_API_KEY`):
 
 ```env
-OPENAI_API_KEY=sk-sua-chave-real-aqui
-OPENAI_MODEL=gpt-4.1-mini
+GEMINI_API_KEY=sua-chave-real-aqui
+AI_MODEL=gemini-3.6-flash
 PORT=3000
 HOST=127.0.0.1
 ```
@@ -98,12 +100,14 @@ HOST=127.0.0.1
 
 | Variável | Padrão | Descrição |
 | :--- | :--- | :--- |
-| `OPENAI_API_KEY` | *(obrigatória)* | Chave de autenticação da API da OpenAI. |
-| `OPENAI_MODEL` | `gpt-4.1-mini` | Modelo utilizado pelo Turing (ex.: `gpt-4.1-mini`, `gpt-4.1`, `gpt-4o-mini`, `gpt-5-mini`). |
+| `GEMINI_API_KEY` | *(obrigatória se usar Gemini)* | Chave de autenticação da API Google Gemini / Vertex AI. |
+| `OPENAI_API_KEY` | *(obrigatória se usar OpenAI)* | Chave de autenticação da API da OpenAI. |
+| `AI_PROVIDER` | *(auto-detectado)* | Define explicitamente o provedor (`gemini` ou `openai`). |
+| `AI_MODEL` / `OPENAI_MODEL` | `gemini-3.6-flash` / `gpt-4.1-mini` | Modelo utilizado pelo Turing. |
 | `OPENAI_BASE_URL` | *(oficial OpenAI)* | Endpoint customizado caso utilize um provedor compatível com OpenAI. |
-| `OPENAI_TIMEOUT_MS` | `25000` | Tempo limite (ms) da chamada ao provedor de IA. |
+| `OPENAI_TIMEOUT_MS` | `45000` | Tempo limite (ms) da chamada ao provedor de IA. |
 | `OPENAI_MAX_RETRIES` | `1` | Tentativas automáticas em falhas transitórias do provedor. |
-| `OPENAI_MAX_OUTPUT_TOKENS` | `700` | Limite de tokens por resposta do assistente. |
+| `OPENAI_MAX_OUTPUT_TOKENS` | `1200` | Limite de tokens por resposta do assistente. |
 | `OPENAI_TEMPERATURE` | `0.6` | Temperatura de geração (aplicada a modelos que suportam o parâmetro). |
 | `PORT` | `3000` | Porta HTTP do servidor. |
 | `HOST` | `127.0.0.1` | Endereço de escuta (`0.0.0.0` para aceitar conexões externas/containers). |
