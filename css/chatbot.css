@@ -1,0 +1,650 @@
+/* ==========================================================================
+   AI Academy — Assistente Virtual Turing
+   Utiliza exclusivamente as variáveis do Design System definidas em style.css.
+   Mobile First: tela cheia em smartphones, painel flutuante a partir de 640px.
+   ========================================================================== */
+
+.turing-widget[hidden],
+.turing-chat[hidden],
+[data-turing-abrir][hidden] {
+  display: none !important;
+}
+
+.turing-visualmente-oculto {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Bloqueio de rolagem da página quando o chat ocupa a tela inteira (mobile). */
+body.turing-aberto-bloqueio {
+  overflow: hidden;
+}
+
+/* Integração com a seção #turing existente */
+.turing-chamada {
+  flex-wrap: wrap;
+  gap: var(--espaco-3);
+}
+
+/* --------------------------------------------------------------------------
+   Botão flutuante
+   -------------------------------------------------------------------------- */
+.turing-lancador {
+  position: fixed;
+  right: max(var(--espaco-4), env(safe-area-inset-right));
+  bottom: max(var(--espaco-4), env(safe-area-inset-bottom));
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  min-width: 56px;
+  height: 56px;
+  padding: 0 var(--espaco-4);
+  color: #ffffff;
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background-color: var(--cor-primaria);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--raio-pilula);
+  box-shadow: var(--sombra-hover), var(--sombra-destaque);
+  cursor: pointer;
+  transition:
+    transform var(--transicao-padrao),
+    background-color var(--transicao-rapida),
+    box-shadow var(--transicao-padrao),
+    opacity var(--transicao-padrao);
+  animation: turing-surgir var(--transicao-revelacao) both;
+}
+
+.turing-lancador:hover {
+  background-color: var(--cor-primaria-hover);
+  transform: translateY(-2px);
+}
+
+.turing-lancador:active {
+  transform: scale(0.96);
+}
+
+.turing-lancador:focus-visible {
+  outline: 2px solid var(--cor-borda-foco);
+  outline-offset: 3px;
+  border-radius: var(--raio-pilula);
+}
+
+.turing-lancador-icone-fechar,
+.turing-lancador[aria-expanded="true"] .turing-lancador-icone-abrir,
+.turing-lancador[aria-expanded="true"] .turing-lancador-rotulo {
+  display: none;
+}
+
+.turing-lancador[aria-expanded="true"] .turing-lancador-icone-fechar {
+  display: block;
+}
+
+.turing-lancador[aria-expanded="true"] {
+  padding: 0;
+  width: 56px;
+  background-color: var(--cor-fundo-elevado);
+  border-color: var(--cor-borda-padrao);
+}
+
+.turing-lancador-rotulo {
+  display: none;
+}
+
+/* No mobile, o chat aberto ocupa a tela e possui botão próprio de fechar. */
+.turing-widget.turing-aberto .turing-lancador {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+/* --------------------------------------------------------------------------
+   Janela de conversa
+   -------------------------------------------------------------------------- */
+.turing-chat {
+  position: fixed;
+  inset: 0;
+  z-index: 1101;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--cor-fundo-superficie);
+  color: var(--cor-texto-secundario);
+  font-family: var(--fonte-principal);
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  transform-origin: bottom right;
+  transition:
+    opacity var(--transicao-padrao),
+    transform var(--transicao-padrao);
+}
+
+.turing-chat.turing-chat-visivel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Cabeçalho */
+.turing-chat-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-4);
+  padding-top: max(var(--espaco-3), env(safe-area-inset-top));
+  background-color: var(--cor-fundo-elevado);
+  border-bottom: 1px solid var(--cor-borda-sutil);
+  flex-shrink: 0;
+}
+
+.turing-chat-identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  min-width: 0;
+}
+
+.turing-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: var(--raio-grande);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.18);
+}
+
+.turing-chat-textos {
+  min-width: 0;
+}
+
+.turing-chat-nome {
+  font-size: var(--tamanho-texto-md);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--cor-texto-primario);
+}
+
+.turing-chat-status {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  font-family: var(--fonte-mono);
+  font-size: var(--tamanho-texto-xs);
+  color: var(--cor-texto-secundario);
+  line-height: 1.4;
+}
+
+.turing-status-ponto {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: var(--raio-pilula);
+  background-color: var(--cor-texto-silenciado);
+  transition: background-color var(--transicao-padrao), box-shadow var(--transicao-padrao);
+}
+
+.turing-chat-status[data-estado="online"] .turing-status-ponto {
+  background-color: var(--cor-acento-verde);
+  box-shadow: 0 0 8px var(--cor-acento-verde);
+}
+
+.turing-chat-status[data-estado="processando"] .turing-status-ponto {
+  background-color: var(--cor-acento-azul);
+  box-shadow: 0 0 8px var(--cor-acento-azul);
+  animation: turing-pulsar 1.2s ease-in-out infinite;
+}
+
+.turing-chat-status[data-estado="pendente"] .turing-status-ponto {
+  background-color: var(--cor-acento-amarelo);
+}
+
+.turing-chat-status[data-estado="offline"] .turing-status-ponto {
+  background-color: #fb7185;
+}
+
+.turing-chat-acoes {
+  display: flex;
+  gap: var(--espaco-1);
+  flex-shrink: 0;
+}
+
+.turing-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--cor-texto-secundario);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--raio-medio);
+  cursor: pointer;
+  transition: color var(--transicao-rapida), background-color var(--transicao-rapida), border-color var(--transicao-rapida);
+}
+
+.turing-acao:hover {
+  color: var(--cor-texto-primario);
+  background-color: var(--cor-fundo-sutil);
+  border-color: var(--cor-borda-sutil);
+}
+
+/* Corpo / mensagens */
+.turing-chat-corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--espaco-5) var(--espaco-4);
+  background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.07), transparent 55%);
+  scrollbar-width: thin;
+  scrollbar-color: var(--cor-fundo-sutil) transparent;
+}
+
+.turing-mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  list-style: none;
+}
+
+.turing-msg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+  max-width: 88%;
+  animation: turing-mensagem-entrar var(--transicao-revelacao) both;
+}
+
+.turing-msg-autor {
+  font-family: var(--fonte-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--cor-texto-silenciado);
+}
+
+.turing-msg-balao {
+  padding: var(--espaco-3) var(--espaco-4);
+  font-size: var(--tamanho-texto-sm);
+  line-height: 1.65;
+  border-radius: var(--raio-grande);
+  overflow-wrap: anywhere;
+}
+
+.turing-msg-balao p + p,
+.turing-msg-balao p + ul,
+.turing-msg-balao ul + p,
+.turing-msg-balao p + ol,
+.turing-msg-balao ol + p {
+  margin-top: var(--espaco-2);
+}
+
+.turing-msg-balao ul,
+.turing-msg-balao ol {
+  display: grid;
+  gap: var(--espaco-1);
+  padding-left: var(--espaco-5);
+}
+
+.turing-msg-balao ul {
+  list-style: disc;
+}
+
+.turing-msg-balao ol {
+  list-style: decimal;
+}
+
+.turing-msg-balao li::marker {
+  color: var(--cor-acento-azul);
+}
+
+.turing-msg-balao strong {
+  color: var(--cor-texto-primario);
+  font-weight: 700;
+}
+
+.turing-msg-balao code {
+  font-family: var(--fonte-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.4em;
+  color: var(--cor-acento-azul);
+  background-color: var(--cor-acento-azul-fundo);
+  border-radius: var(--raio-pequeno);
+}
+
+/* Turing (assistente) */
+.turing-msg-assistente {
+  align-self: flex-start;
+}
+
+.turing-msg-assistente .turing-msg-balao {
+  color: var(--cor-texto-secundario);
+  background-color: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda-sutil);
+  border-top-left-radius: var(--raio-pequeno);
+}
+
+.turing-msg-assistente .turing-msg-autor {
+  color: var(--cor-acento-azul);
+}
+
+/* Usuário */
+.turing-msg-usuario {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.turing-msg-usuario .turing-msg-balao {
+  color: #ffffff;
+  background-color: var(--cor-primaria);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-right-radius: var(--raio-pequeno);
+  white-space: pre-wrap;
+}
+
+.turing-msg-usuario.turing-msg-nao-enviada .turing-msg-balao {
+  background-color: var(--cor-fundo-sutil);
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.turing-msg-nota {
+  font-size: 0.6875rem;
+  color: #fda4af;
+}
+
+/* Erro */
+.turing-msg-erro {
+  align-self: stretch;
+  max-width: 100%;
+}
+
+.turing-msg-erro .turing-msg-balao {
+  display: grid;
+  gap: var(--espaco-3);
+  color: #fecdd3;
+  background-color: rgba(251, 113, 133, 0.08);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+}
+
+.turing-msg-erro .turing-msg-autor {
+  color: #fda4af;
+}
+
+.turing-erro-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+}
+
+.turing-erro-botao {
+  min-height: 36px;
+  padding: var(--espaco-1) var(--espaco-3);
+  font-family: var(--fonte-principal);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 600;
+  color: var(--cor-texto-primario);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-medio);
+  cursor: pointer;
+  transition: background-color var(--transicao-rapida), border-color var(--transicao-rapida);
+}
+
+.turing-erro-botao:hover {
+  background-color: var(--cor-fundo-sutil);
+  border-color: var(--cor-borda-realce);
+}
+
+/* Indicador de digitação */
+.turing-digitando .turing-msg-balao {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  padding: var(--espaco-4);
+}
+
+.turing-digitando-ponto {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--raio-pilula);
+  background-color: var(--cor-acento-azul);
+  opacity: 0.35;
+  animation: turing-digitar 1.2s ease-in-out infinite;
+}
+
+.turing-digitando-ponto:nth-child(2) { animation-delay: 0.15s; }
+.turing-digitando-ponto:nth-child(3) { animation-delay: 0.3s; }
+
+/* Sugestões iniciais */
+.turing-sugestoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+  margin-top: var(--espaco-4);
+  animation: turing-mensagem-entrar var(--transicao-revelacao) 120ms both;
+}
+
+.turing-sugestoes[hidden] {
+  display: none;
+}
+
+.turing-sugestao {
+  min-height: 36px;
+  padding: var(--espaco-1) var(--espaco-3);
+  font-family: var(--fonte-principal);
+  font-size: var(--tamanho-texto-xs);
+  font-weight: 500;
+  color: var(--cor-acento-azul);
+  text-align: left;
+  background-color: var(--cor-acento-azul-fundo);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--raio-pilula);
+  cursor: pointer;
+  transition: background-color var(--transicao-rapida), color var(--transicao-rapida), border-color var(--transicao-rapida);
+}
+
+.turing-sugestao:hover {
+  color: #ffffff;
+  background-color: rgba(56, 189, 248, 0.2);
+  border-color: var(--cor-borda-realce);
+}
+
+/* Formulário */
+.turing-formulario {
+  flex-shrink: 0;
+  display: grid;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3) var(--espaco-4);
+  padding-bottom: max(var(--espaco-3), env(safe-area-inset-bottom));
+  background-color: var(--cor-fundo-elevado);
+  border-top: 1px solid var(--cor-borda-sutil);
+}
+
+.turing-formulario-linha {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--espaco-2);
+}
+
+.turing-campo {
+  flex: 1 1 auto;
+  min-height: 46px;
+  max-height: 140px;
+  padding: var(--espaco-3) var(--espaco-4);
+  /* 16px evita zoom automático no iOS ao focar o campo */
+  font: inherit;
+  font-size: max(16px, var(--tamanho-texto-sm));
+  line-height: 1.45;
+  color: var(--cor-texto-primario);
+  background-color: var(--cor-fundo-base);
+  border: 1px solid var(--cor-borda-padrao);
+  border-radius: var(--raio-medio);
+  resize: none;
+  overflow-y: auto;
+  transition: border-color var(--transicao-rapida), box-shadow var(--transicao-rapida);
+}
+
+.turing-campo::placeholder {
+  color: var(--cor-texto-silenciado);
+}
+
+.turing-campo:focus {
+  outline: none;
+  border-color: var(--cor-borda-foco);
+  box-shadow: 0 0 0 3px var(--cor-acento-azul-fundo);
+}
+
+.turing-campo[aria-invalid="true"] {
+  border-color: #fb7185;
+}
+
+.turing-enviar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  color: #ffffff;
+  background-color: var(--cor-primaria);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--raio-medio);
+  cursor: pointer;
+  transition: background-color var(--transicao-rapida), box-shadow var(--transicao-rapida), opacity var(--transicao-rapida), transform var(--transicao-rapida);
+}
+
+.turing-enviar:hover:not(:disabled) {
+  background-color: var(--cor-primaria-hover);
+  box-shadow: var(--sombra-destaque);
+}
+
+.turing-enviar:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.turing-enviar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.turing-formulario-rodape {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+  font-family: var(--fonte-mono);
+  font-size: 0.6875rem;
+  color: var(--cor-texto-silenciado);
+}
+
+.turing-dica[data-tipo="erro"] {
+  color: #fda4af;
+}
+
+.turing-contador[data-alerta="true"] {
+  color: var(--cor-acento-amarelo);
+}
+
+.turing-aviso {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--cor-texto-silenciado);
+}
+
+/* --------------------------------------------------------------------------
+   Animações
+   -------------------------------------------------------------------------- */
+@keyframes turing-surgir {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes turing-mensagem-entrar {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes turing-digitar {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30%           { opacity: 1;    transform: translateY(-3px); }
+}
+
+@keyframes turing-pulsar {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* --------------------------------------------------------------------------
+   Tablets e desktops: painel flutuante
+   -------------------------------------------------------------------------- */
+@media (min-width: 640px) {
+  .turing-lancador {
+    right: var(--espaco-6);
+    bottom: var(--espaco-6);
+  }
+
+  .turing-lancador-rotulo {
+    display: inline;
+  }
+
+  .turing-widget.turing-aberto .turing-lancador {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .turing-chat {
+    inset: auto;
+    right: var(--espaco-6);
+    bottom: calc(var(--espaco-6) + 56px + var(--espaco-3));
+    width: min(410px, calc(100vw - 2 * var(--espaco-6)));
+    height: min(640px, calc(100dvh - 56px - 3 * var(--espaco-6)));
+    border: 1px solid var(--cor-borda-padrao);
+    border-radius: var(--raio-container);
+    box-shadow: var(--sombra-hover), 0 0 40px rgba(37, 99, 235, 0.12);
+    overflow: hidden;
+  }
+
+  .turing-chat-cabecalho {
+    padding-top: var(--espaco-3);
+  }
+
+  .turing-formulario {
+    padding-bottom: var(--espaco-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turing-chat,
+  .turing-lancador,
+  .turing-msg,
+  .turing-sugestoes {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .turing-digitando-ponto {
+    animation: none !important;
+    opacity: 0.8;
+  }
+}
+
+@media (forced-colors: active) {
+  .turing-msg-balao,
+  .turing-lancador,
+  .turing-enviar {
+    border: 1px solid CanvasText;
+  }
+}
+

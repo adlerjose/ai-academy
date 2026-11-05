@@ -1,0 +1,25 @@
+{
+  "name": "ai-academy",
+  "version": "1.1.0",
+  "description": "Plataforma educacional AI Academy com o assistente virtual Turing (IA integrada via backend Node.js/Express).",
+  "private": true,
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch-path=server --watch-path=index.html server/server.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "test:ia": "node test/smoke-ia.js",
+    "check:seguranca": "node test/verificar-chave.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@google/genai": "^2.32.0",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.3",
+    "openai": "^7.50.0"
+  }
+}
