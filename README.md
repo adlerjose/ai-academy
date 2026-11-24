@@ -175,6 +175,17 @@ http://localhost:3000
 | *"Não consegui estabelecer uma conexão com meu mecanismo de inteligência"* | Modelo inexistente na conta (`OPENAI_MODEL`) ou instabilidade na API. | Confira o nome em `OPENAI_MODEL` no `.env` (padrão: `gpt-4.1-mini`) e os logs do terminal do servidor. |
 | Erro `A porta 3000 já está em uso` ao iniciar | Outro processo já ocupa a porta `3000`. | Altere `PORT=3001` no `.env` (ou finalize o processo que está usando a porta `3000`). |
 
+### 8. Publicação na Vercel (Serverless)
+
+A plataforma está totalmente preparada para execução serverless na **Vercel**:
+
+1. Conecte o repositório à Vercel (via dashboard ou CLI `vercel`).
+2. Adicione as seguintes **Environment Variables** nas configurações do projeto na Vercel:
+   * `GEMINI_API_KEY`: sua chave da API Google Gemini (ou `OPENAI_API_KEY` se utilizar OpenAI).
+   * `AI_PROVIDER`: `gemini` (opcional, detectado automaticamente ao informar a chave).
+   * `AI_MODEL`: `gemini-2.5-flash` ou `gemini-1.5-flash` (ou `gemini-3.5-flash`, `gpt-4.1-mini`).
+3. Ao realizar o deploy, a Vercel roteará requisições `/api/*` para a Serverless Function (`api/index.js` -> `server.js`) e servirá arquivos estáticos (`index.html`, `css/`, `js/`) diretamente pela CDN global de alta performance.
+
 ---
 
 ## Estrutura de Pastas
@@ -188,6 +199,11 @@ ai-academy/
 ├── js/
 │   ├── ui.js                   # Menu mobile, revelação dos cards e formulário
 │   └── chatbot.js              # Interface, sessão e comunicação do Turing
+├── api/
+│   └── index.js                # Serverless Function entrypoint da Vercel
+├── server.js                   # Ponto de entrada raiz (compatível com Vercel e execução local)
+├── vercel.json                 # Configuração de roteamento Serverless e arquivos na Vercel
+├── .vercelignore               # Exclusões de arquivos de teste/documentação no deploy Vercel
 ├── server/
 │   ├── server.js               # Servidor Express, segurança, CORS e arquivos públicos
 │   ├── config/
@@ -196,7 +212,7 @@ ai-academy/
 │   ├── routes/
 │   │   └── chat.js             # Endpoint POST /api/chat, validação e limites
 │   └── services/
-│       ├── aiService.js        # Integração com a OpenAI e tradução de erros
+│       ├── aiService.js        # Integração com Google Gemini / OpenAI e tradução de erros
 │       └── catalogService.js   # Extração dos 6 cursos reais de index.html
 ├── test/
 │   ├── catalogo.test.js        # Testes do catálogo e do System Prompt
