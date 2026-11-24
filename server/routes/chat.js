@@ -13,7 +13,7 @@ const express = require('express');
 const { rateLimit } = require('express-rate-limit');
 
 const { config } = require('../config/aiConfig');
-const { gerarResposta, ErroIA } = require('../services/aiService');
+const { gerarResposta, ErroIA, traduzirErro } = require('../services/aiService');
 
 const LIMITE_ABSOLUTO_ITENS_HISTORICO = 200; // acima disso a requisição é rejeitada sem processamento
 const FATOR_TAMANHO_ASSISTENTE = 6; // respostas do Turing podem ser mais longas que as do usuário
@@ -29,8 +29,75 @@ const sanitizar = (texto) =>
 const erroValidacao = (codigo, mensagem) => new ErroIA(codigo, 400, mensagem);
 
 /**
+ * Otimiza o histórico da conversa para manter a menor latência e consumo de tokens:
+ * 1. Preserva a âncora inicial da conversa (mensagem diagnóstica com background do usuário).
+ * 2. Mantém a janela deslizante mais recente para garantir coerência no diálogo atual.
+ * 3. Encurta mensagens intermediárias do assistente excessivamente prolixas.
+ * 4. Garante que o total de mensagens e caracteres respeite os limites configurados.
+ */
+const otimizarHistorico = (historico, mensagemAtual, maxMensagens, maxCaracteres) => {
+  if (!historico.length) return [];
+
+  const limiteMensagensHistorico = Math.max(1, maxMensagens - 1);
+  let totalCaracteres = mensagemAtual.length;
+
+  // Se o histórico cabe confortavelmente, apenas verifica limite de caracteres
+  if (historico.length <= limiteMensagensHistorico) {
+    const selecionadas = [];
+    for (let i = historico.length - 1; i >= 0; i -= 1) {
+      if (totalCaracteres + historico[i].content.length > maxCaracteres) break;
+      totalCaracteres += historico[i].content.length;
+      selecionadas.unshift(historico[i]);
+    }
+    return selecionadas;
+  }
+
+  // Histórico longo: preserva a âncora inicial (1ª mensagem de diagnóstico) e a janela recente
+  const indicePrimeiroUsuario = historico.findIndex((item) => item.role === 'user');
+  const ancoras = [];
+
+  if (indicePrimeiroUsuario !== -1) {
+    if (indicePrimeiroUsuario === 1 && historico[0].role === 'assistant') {
+      ancoras.push(historico[0], historico[1]);
+    } else {
+      ancoras.push(historico[indicePrimeiroUsuario]);
+    }
+  } else if (historico.length > 0) {
+    ancoras.push(historico[0]);
+  }
+
+  const vagasRestantes = Math.max(1, limiteMensagensHistorico - ancoras.length);
+  const candidatosRecentes = historico.slice(Math.max(ancoras.length, historico.length - vagasRestantes));
+
+  const resultado = [...ancoras];
+  for (const item of candidatosRecentes) {
+    if (item.role === 'assistant' && item.content.length > 600) {
+      resultado.push({
+        role: 'assistant',
+        content: `${item.content.slice(0, 500)}... [continuação resumida pelo Turing]`
+      });
+    } else {
+      resultado.push(item);
+    }
+  }
+
+  // Aplica limite de caracteres do recorte
+  while (resultado.length > 1) {
+    const somaChars = resultado.reduce((acc, m) => acc + m.content.length, mensagemAtual.length);
+    if (somaChars <= maxCaracteres) break;
+    if (resultado.length > ancoras.length + 1) {
+      resultado.splice(ancoras.length, 1);
+    } else {
+      resultado.shift();
+    }
+  }
+
+  return resultado;
+};
+
+/**
  * Valida o corpo da requisição e retorna a lista de mensagens pronta para o modelo.
- * O histórico é recortado para respeitar os limites de quantidade e de caracteres.
+ * O histórico é otimizado para equilibrar continuidade diagnóstica e baixa latência.
  */
 const validarCorpo = (corpo) => {
   const { maxCaracteresMensagem, maxMensagensHistorico, maxCaracteresHistorico } = config.limites;
@@ -73,15 +140,12 @@ const validarCorpo = (corpo) => {
     return { role: item.role, content: sanitizar(item.content).slice(0, limite) };
   }).filter((item) => item.content);
 
-  // Mantém as mensagens mais recentes dentro dos limites de quantidade e de caracteres.
-  const recorte = [];
-  let totalCaracteres = mensagem.length;
-  for (let i = historico.length - 1; i >= 0; i -= 1) {
-    if (recorte.length >= maxMensagensHistorico - 1) break;
-    totalCaracteres += historico[i].content.length;
-    if (totalCaracteres > maxCaracteresHistorico) break;
-    recorte.unshift(historico[i]);
-  }
+  const recorte = otimizarHistorico(
+    historico,
+    mensagem,
+    maxMensagensHistorico,
+    maxCaracteresHistorico
+  );
 
   return [...recorte, { role: 'user', content: mensagem }];
 };
@@ -135,6 +199,9 @@ const criarRotaChat = ({ systemPrompt, registrar = console }) => {
   rota.post('/chat', limitador, criarControleConcorrencia(), async (req, res, next) => {
     try {
       const mensagens = validarCorpo(req.body);
+      const querStream =
+        req.body?.stream === true ||
+        Boolean(req.headers.accept && req.headers.accept.includes('text/event-stream'));
 
       // Cancela a chamada ao provedor se o cliente desconectar antes da resposta.
       const controlador = new AbortController();
@@ -143,6 +210,53 @@ const criarRotaChat = ({ systemPrompt, registrar = console }) => {
       });
 
       const inicio = Date.now();
+
+      if (querStream) {
+        res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-transform');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('X-Accel-Buffering', 'no');
+        res.flushHeaders?.();
+
+        let primeiroTokenMs = null;
+        const onChunk = (chunk) => {
+          if (primeiroTokenMs === null) {
+            primeiroTokenMs = Date.now() - inicio;
+          }
+          if (!res.writableEnded) {
+            res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
+          }
+        };
+
+        const { resposta, modelo, uso, truncada } = await gerarResposta({
+          systemPrompt,
+          mensagens,
+          signal: controlador.signal,
+          onChunk
+        });
+
+        const tempoTotal = Date.now() - inicio;
+        registrar.info(
+          `[chat:stream] ok modelo=${modelo} mensagens=${mensagens.length} ` +
+            `ttft=${primeiroTokenMs ?? tempoTotal}ms tempoTotal=${tempoTotal}ms${truncada ? ' (truncada)' : ''}`
+        );
+
+        if (!res.writableEnded) {
+          res.write(
+            `data: ${JSON.stringify({
+              done: true,
+              resposta,
+              modelo,
+              uso,
+              ttft: primeiroTokenMs ?? tempoTotal,
+              tempoTotal
+            })}\n\n`
+          );
+          res.end();
+        }
+        return undefined;
+      }
+
       const { resposta, modelo, uso, truncada } = await gerarResposta({
         systemPrompt,
         mensagens,
@@ -157,6 +271,21 @@ const criarRotaChat = ({ systemPrompt, registrar = console }) => {
       if (res.writableEnded || controlador.signal.aborted) return undefined;
       return res.json({ resposta, modelo });
     } catch (erro) {
+      if (res.headersSent) {
+        if (!res.writableEnded) {
+          const erroIA = traduzirErro ? traduzirErro(erro) : erro;
+          res.write(
+            `data: ${JSON.stringify({
+              erro: {
+                codigo: erroIA.codigo || 'INTERNAL_ERROR',
+                mensagem: erroIA.message || 'Erro no processamento da resposta.'
+              }
+            })}\n\n`
+          );
+          res.end();
+        }
+        return undefined;
+      }
       return next(erro);
     }
   });

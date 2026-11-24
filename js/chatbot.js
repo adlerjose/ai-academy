@@ -380,6 +380,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ------------------------------------------------------------------
      Comunicação com o backend
      ------------------------------------------------------------------ */
+  let ultimaMensagemEnviada = '';
+  let tempoUltimoEnvio = 0;
+
   const solicitarResposta = async (mensagem, elementoUsuario) => {
     estado.processando = true;
     atualizarControles();
@@ -399,29 +402,115 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const resposta = await fetch(CONFIG.urlChat, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ mensagem, historico: montarContexto() }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream, application/json'
+        },
+        body: JSON.stringify({ mensagem, historico: montarContexto(), stream: true }),
         signal: controlador.signal
       });
 
-      let dados = null;
-      try {
-        dados = await resposta.json();
-      } catch {
-        dados = null;
-      }
+      const ehStream = Boolean(
+        resposta.headers.get('content-type')?.includes('text/event-stream') && resposta.body?.getReader
+      );
 
-      if (!resposta.ok || !dados || typeof dados.resposta !== 'string') {
-        const codigo = dados?.erro?.codigo;
-        chaveErro = ERRO_POR_CODIGO[codigo] || (resposta.status === 429 ? 'LIMITE' : 'IA_INDISPONIVEL');
+      if (ehStream && resposta.ok) {
+        const reader = resposta.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let textoAcumulado = '';
+        let balao = null;
+        let itemMsg = null;
+        let animando = false;
+
+        const renderizarParcial = () => {
+          if (!itemMsg) {
+            removerDigitacao();
+            const criado = criarMensagem('assistant', 'Turing');
+            itemMsg = criado.item;
+            balao = criado.balao;
+            lista.appendChild(itemMsg);
+          }
+          balao.replaceChildren();
+          renderizarMarkdown(textoAcumulado, balao);
+          rolarParaFim(false);
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const linhas = buffer.split('\n');
+          buffer = linhas.pop() || '';
+
+          for (const linha of linhas) {
+            const linhaLimpa = linha.trim();
+            if (!linhaLimpa.startsWith('data:')) continue;
+            const conteudoData = linhaLimpa.slice(5).trim();
+            if (!conteudoData) continue;
+
+            try {
+              const pacote = JSON.parse(conteudoData);
+              if (pacote.erro) {
+                chaveErro = ERRO_POR_CODIGO[pacote.erro.codigo] || 'IA_INDISPONIVEL';
+                break;
+              }
+              if (pacote.chunk) {
+                textoAcumulado += pacote.chunk;
+                if (!animando) {
+                  animando = true;
+                  window.requestAnimationFrame(() => {
+                    renderizarParcial();
+                    animando = false;
+                  });
+                }
+              }
+              if (pacote.done && pacote.resposta && !textoAcumulado) {
+                textoAcumulado = pacote.resposta;
+              }
+            } catch {
+              /* ignora pacotes parciais */
+            }
+          }
+          if (chaveErro) break;
+        }
+
+        if (textoAcumulado) {
+          renderizarParcial();
+          estado.historico.push(
+            { role: 'user', content: mensagem },
+            { role: 'assistant', content: textoAcumulado }
+          );
+          estado.historico = estado.historico.slice(-CONFIG.maxMensagensSessao);
+          salvarHistorico();
+          definirStatus('online', 'Online · Orientação acadêmica com IA');
+        } else if (!chaveErro) {
+          chaveErro = 'IA_INDISPONIVEL';
+        }
       } else {
-        // Sucesso: a mensagem do usuário e a resposta entram no histórico juntas.
-        estado.historico.push({ role: 'user', content: mensagem }, { role: 'assistant', content: dados.resposta });
-        estado.historico = estado.historico.slice(-CONFIG.maxMensagensSessao);
-        salvarHistorico();
-        removerDigitacao();
-        adicionarMensagem('assistant', dados.resposta);
-        definirStatus('online', 'Online · Orientação acadêmica com IA');
+        let dados = null;
+        try {
+          dados = await resposta.json();
+        } catch {
+          dados = null;
+        }
+
+        if (!resposta.ok || !dados || typeof dados.resposta !== 'string') {
+          const codigo = dados?.erro?.codigo;
+          chaveErro = ERRO_POR_CODIGO[codigo] || (resposta.status === 429 ? 'LIMITE' : 'IA_INDISPONIVEL');
+        } else {
+          // Sucesso JSON padrão
+          estado.historico.push(
+            { role: 'user', content: mensagem },
+            { role: 'assistant', content: dados.resposta }
+          );
+          estado.historico = estado.historico.slice(-CONFIG.maxMensagensSessao);
+          salvarHistorico();
+          removerDigitacao();
+          adicionarMensagem('assistant', dados.resposta);
+          definirStatus('online', 'Online · Orientação acadêmica com IA');
+        }
       }
     } catch (erro) {
       if (erro.name === 'AbortError' && !estourouTempo) {
@@ -488,6 +577,14 @@ document.addEventListener('DOMContentLoaded', () => {
       campo.focus();
       return;
     }
+
+    // Previne envio duplicado acidental da mesma mensagem em curtíssimo intervalo
+    const agora = Date.now();
+    if (mensagem === ultimaMensagemEnviada && agora - tempoUltimoEnvio < 1500) {
+      return;
+    }
+    ultimaMensagemEnviada = mensagem;
+    tempoUltimoEnvio = agora;
 
     definirDica();
     sugestoes.hidden = true;

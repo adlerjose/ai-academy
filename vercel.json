@@ -9,7 +9,8 @@
   ],
   "functions": {
     "api/index.js": {
-      "includeFiles": "index.html"
+      "includeFiles": "index.html",
+      "maxDuration": 30
     }
   }
 }
