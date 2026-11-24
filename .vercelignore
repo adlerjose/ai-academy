@@ -1,0 +1,6 @@
+# Arquivos ignorados na implantação da Vercel
+.env
+.env.*
+!.env.example
+test/
+docs/
