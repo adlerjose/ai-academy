@@ -30,7 +30,7 @@ O projeto combina uma interface leve em **Vanilla Stack** com um backend em **No
   * **JavaScript Vanilla (ES6+):** Interações da interface, menu mobile, revelação dos cards de cursos, validação do formulário e cliente do chatbot via Fetch API.
 * **Backend e Inteligência Artificial:**
   * **Node.js + Express:** Servidor HTTP que entrega os arquivos públicos do frontend e expõe o endpoint `POST /api/chat`.
-  * **SDKs Oficiais de IA (`@google/genai` e `openai`):** Comunicação com modelos Google Gemini (padrão `gemini-3.1-flash-lite` com Thinking Level MINIMAL para ultra-baixa latência) ou OpenAI (`gpt-4.1-mini`), configuráveis por variável de ambiente.
+  * **SDK Oficial do Google Gemini (`@google/genai`):** Comunicação direta e exclusiva com o modelo **Gemini 3.1 Flash-Lite** (`gemini-3.1-flash-lite`) com `thinkingLevel: 'MINIMAL'` para ultra-baixa latência e alta eficiência.
   * **`dotenv` e `express-rate-limit`:** Gerenciamento de variáveis de ambiente e proteção contra abuso do endpoint.
 
 ---
@@ -62,7 +62,7 @@ O projeto combina uma interface leve em **Vanilla Stack** com um backend em **No
 
 * **Node.js** 20 ou superior (`node -v`).
 * **npm** (`npm -v`).
-* Uma **chave de API da OpenAI** (ou de um provedor compatível com a API da OpenAI).
+* Uma **chave de API do Google Gemini** (Google AI Studio).
 
 ### 1. Instalar as dependências
 
@@ -74,9 +74,8 @@ npm install
 
 ### 2. Obter e configurar a chave da API
 
-1. Obtenha uma chave de API do provedor desejado:
-   * **Google Gemini / Google AI Studio:** [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-   * **OpenAI (opcional):** [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+1. Obtenha sua chave de API do **Google Gemini / Google AI Studio**:
+   * [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 2. Crie o arquivo `.env` na raiz do projeto copiando o modelo `.env.example`:
 
    ```bash
@@ -85,11 +84,10 @@ npm install
 
 ### 3. Preencher o arquivo `.env`
 
-Abra o arquivo `.env` em um editor de texto e preencha a chave da API (`GEMINI_API_KEY` ou `OPENAI_API_KEY`):
+Abra o arquivo `.env` em um editor de texto e preencha a chave da API (`GEMINI_API_KEY`):
 
 ```env
 GEMINI_API_KEY=sua-chave-real-aqui
-AI_MODEL=gemini-3.1-flash-lite
 PORT=3000
 HOST=127.0.0.1
 ```
@@ -100,17 +98,10 @@ HOST=127.0.0.1
 
 | Variável | Padrão | Descrição |
 | :--- | :--- | :--- |
-| `GEMINI_API_KEY` | *(obrigatória se usar Gemini)* | Chave de autenticação da API Google Gemini / Vertex AI. |
-| `OPENAI_API_KEY` | *(obrigatória se usar OpenAI)* | Chave de autenticação da API da OpenAI. |
-| `AI_PROVIDER` | *(auto-detectado)* | Define explicitamente o provedor (`gemini` ou `openai`). |
-| `AI_MODEL` / `OPENAI_MODEL` | `gemini-3.1-flash-lite` / `gpt-4.1-mini` | Modelo utilizado pelo Turing. |
-| `OPENAI_BASE_URL` | *(oficial OpenAI)* | Endpoint customizado caso utilize um provedor compatível com OpenAI. |
-| `OPENAI_TIMEOUT_MS` | `45000` | Tempo limite (ms) da chamada ao provedor de IA. |
-| `OPENAI_MAX_RETRIES` | `1` | Tentativas automáticas em falhas transitórias do provedor. |
-| `OPENAI_MAX_OUTPUT_TOKENS` | `1200` | Limite de tokens por resposta do assistente. |
-| `OPENAI_TEMPERATURE` | `0.6` | Temperatura de geração (aplicada a modelos que suportam o parâmetro). |
+| `GEMINI_API_KEY` | *(obrigatória no backend)* | Chave de autenticação da API Google Gemini. |
 | `PORT` | `3000` | Porta HTTP do servidor. |
 | `HOST` | `127.0.0.1` | Endereço de escuta (`0.0.0.0` para aceitar conexões externas/containers). |
+| `NODE_ENV` | `development` | Ambiente de execução (`development` ou `production`). |
 | `CORS_ORIGINS` | *(vazio)* | Origens extras autorizadas em `/api`, separadas por vírgula (ex.: `http://localhost:5500`). |
 | `CHAT_MAX_MESSAGE_CHARS` | `1000` | Tamanho máximo de cada mensagem enviada pelo usuário. |
 | `CHAT_MAX_HISTORY_MESSAGES` | `20` | Quantidade máxima de mensagens enviadas como contexto. |
@@ -147,7 +138,7 @@ http://localhost:3000
 ### 6. Como testar o chatbot
 
 * **Pela interface:** Clique no botão flutuante **Turing** (canto inferior direito), no botão **"Conversar com o Turing"** na seção *Tutor Turing*, ou em **"Consultar Pré-requisitos"** em qualquer card de curso. Conte sua experiência com programação/Python e seus objetivos para receber o diagnóstico e a recomendação de trilha.
-* **Testes automatizados (validação, segurança, rate limit, timeout, CORS e catálogo):**
+* **Testes automatizados (validação, segurança, rate limit, timeout, CORS, modelo e catálogo):**
   ```bash
   npm test
   ```
@@ -155,7 +146,7 @@ http://localhost:3000
   ```bash
   npm run check:seguranca
   ```
-* **Teste de ponta a ponta com a API real da OpenAI** (requer `OPENAI_API_KEY` configurada no `.env`):
+* **Teste de ponta a ponta com a API real do Google Gemini** (requer `GEMINI_API_KEY` configurada no `.env`):
   ```bash
   npm run test:ia
   ```
@@ -168,11 +159,10 @@ http://localhost:3000
 
 | Sintoma | Causa provável | Como resolver |
 | :--- | :--- | :--- |
-| Status **"Configuração pendente"** ou mensagem *"Meu mecanismo de inteligência ainda não foi configurado"* | `OPENAI_API_KEY` ausente, vazia ou inválida no `.env`. | Crie o arquivo `.env` na raiz (`cp .env.example .env`), preencha `OPENAI_API_KEY=sk-...` com uma chave válida e reinicie o servidor (`npm run dev`). |
+| Status **"Configuração pendente"** ou mensagem *"Meu mecanismo de inteligência ainda não foi configurado"* | `GEMINI_API_KEY` ausente ou vazia no `.env`. | Crie o arquivo `.env` na raiz (`cp .env.example .env`), preencha `GEMINI_API_KEY=AIza...` com uma chave válida do Google AI Studio e reinicie o servidor (`npm run dev`). |
 | Status **"Offline"** ou *"Não consegui me conectar ao servidor da AI Academy"* | O servidor Node.js não está rodando ou a página foi aberta em outro endereço sem CORS configurado. | Inicie o servidor com `npm run dev` e acesse a plataforma por `http://localhost:3000`. Se usar outro servidor estático (como Live Server na porta `5500`), adicione `CORS_ORIGINS=http://localhost:5500,http://127.0.0.1:5500` ao `.env` e defina `data-api-base="http://localhost:3000"` em `#turing-widget`. |
-| *"O limite de uso do meu mecanismo de inteligência foi atingido"* | A conta da OpenAI está sem créditos/cota (`insufficient_quota`). | Verifique os créditos e limites em [https://platform.openai.com/settings/organization/billing](https://platform.openai.com/settings/organization/billing). |
+| *"O limite de uso do meu mecanismo de inteligência foi atingido"* | A cota da chave Gemini foi excedida (`RESOURCE_EXHAUSTED`). | Verifique os limites do projeto no Google AI Studio / Google Cloud Console. |
 | *"Você enviou muitas mensagens em pouco tempo"* | Rate limit atingido (`RATE_LIMIT_MAX` por minuto). | Aguarde cerca de 1 minuto ou ajuste `RATE_LIMIT_MAX` no `.env` em ambiente de desenvolvimento. |
-| *"Não consegui estabelecer uma conexão com meu mecanismo de inteligência"* | Modelo inexistente na conta (`OPENAI_MODEL`) ou instabilidade na API. | Confira o nome em `OPENAI_MODEL` no `.env` (padrão: `gpt-4.1-mini`) e os logs do terminal do servidor. |
 | Erro `A porta 3000 já está em uso` ao iniciar | Outro processo já ocupa a porta `3000`. | Altere `PORT=3001` no `.env` (ou finalize o processo que está usando a porta `3000`). |
 
 ### 8. Publicação na Vercel (Serverless)
@@ -180,10 +170,8 @@ http://localhost:3000
 A plataforma está totalmente preparada para execução serverless na **Vercel**:
 
 1. Conecte o repositório à Vercel (via dashboard ou CLI `vercel`).
-2. Adicione as seguintes **Environment Variables** nas configurações do projeto na Vercel:
-   * `GEMINI_API_KEY`: sua chave da API Google Gemini (ou `OPENAI_API_KEY` se utilizar OpenAI).
-   * `AI_PROVIDER`: `gemini` (opcional, detectado automaticamente ao informar a chave).
-   * `AI_MODEL`: `gemini-3.1-flash-lite` (padrão de menor latência) ou `gemini-2.5-flash` / `gpt-4.1-mini`.
+2. Adicione a seguinte **Environment Variable** nas configurações do projeto na Vercel:
+   * `GEMINI_API_KEY`: sua chave da API Google Gemini.
 3. Ao realizar o deploy, a Vercel roteará requisições `/api/*` para a Serverless Function (`api/index.js` -> `server.js`) e servirá arquivos estáticos (`index.html`, `css/`, `js/`) diretamente pela CDN global de alta performance.
 
 ---
@@ -207,20 +195,21 @@ ai-academy/
 ├── server/
 │   ├── server.js               # Servidor Express, segurança, CORS e arquivos públicos
 │   ├── config/
-│   │   ├── aiConfig.js         # Leitura e validação das variáveis de ambiente
+│   │   ├── aiConfig.js         # Configuração centralizada fixa (gemini-3.1-flash-lite)
 │   │   └── turingPrompt.js     # System Prompt e mensagem inicial do Turing
 │   ├── routes/
 │   │   └── chat.js             # Endpoint POST /api/chat, validação e limites
 │   └── services/
-│       ├── aiService.js        # Integração com Google Gemini / OpenAI e tradução de erros
+│       ├── aiService.js        # Integração exclusiva com Google Gemini (gemini-3.1-flash-lite)
 │       └── catalogService.js   # Extração dos 6 cursos reais de index.html
 ├── test/
 │   ├── catalogo.test.js        # Testes do catálogo e do System Prompt
 │   ├── chat.test.js            # Testes do endpoint /api/chat e segurança
 │   ├── configuracao.test.js    # Testes de ausência de chave e rate limiting
-│   ├── smoke-ia.js             # Teste de conversa real com a OpenAI
+│   ├── gemini-config.test.js   # Testes unitários do modelo único e conformidade do SDK
+│   ├── smoke-ia.js             # Teste de conversa real com o Google Gemini
 │   ├── verificar-chave.js      # Auditoria contra exposição de credenciais
-│   └── helpers.js              # Utilitários de teste
+│   └── helpers.js              # Utilitários de teste e mock rigoroso do Google GenAI
 ├── .env.example                # Modelo de variáveis de ambiente (sem credenciais)
 ├── .gitignore                  # Regras de exclusão do Git (inclui .env e node_modules)
 ├── package.json                # Dependências e scripts npm
@@ -231,15 +220,16 @@ ai-academy/
 
 ## Integração com Inteligência Artificial
 
-* **Provedor e modelo:** Integração via SDK oficial `openai` no backend Node.js. O modelo padrão é `gpt-4.1-mini`, configurável pela variável `OPENAI_MODEL` (compatível também com `gpt-4.1`, `gpt-4o-mini`, série `o*` e `gpt-5*`, ou provedores compatíveis via `OPENAI_BASE_URL`).
+* **Provedor e modelo:** Integração via SDK oficial `@google/genai` no backend Node.js. O assistente Turing utiliza **exclusivamente** o modelo `gemini-3.1-flash-lite` com `thinkingConfig: { thinkingLevel: 'MINIMAL' }`, garantindo respostas instantâneas com latência mínima e eficiência máxima de tokens.
+* **Política de Modelo Único:** Não existem modelos alternativos, fallbacks ou trocas dinâmicas de provedor. Toda chamada é direcionada unicamente a `gemini-3.1-flash-lite`.
 * **Arquitetura de prompt (System Prompt):** Definido em `server/config/turingPrompt.js`. Incorpora as diretrizes de personalidade e restrições do Turing, as regras de diagnóstico progressivo (classificação em *Iniciante*, *Intermediário* ou *Avançado*) e o catálogo oficial das 6 formações extraído diretamente de `index.html` por `server/services/catalogService.js` na inicialização do servidor.
 * **Fluxo de requisição e resposta:**
   1. O usuário envia uma mensagem na interface (`js/chatbot.js`).
   2. O frontend faz `POST /api/chat` com `{ mensagem, historico }` (recortado aos limites de quantidade e caracteres).
   3. `server/routes/chat.js` aplica rate limiting, controle de concorrência por IP e global, sanitização e validação estrita (apenas papéis `user` e `assistant` são aceitos, impedindo injeção de prompts de sistema pelo cliente).
-  4. `server/services/aiService.js` combina o System Prompt com o histórico e chama a API da OpenAI com timeout configurável e cancelamento caso o cliente desconecte.
-  5. A resposta é devolvida em JSON (`{ resposta, modelo }`) e renderizada no frontend com criação segura de nós DOM (sem `innerHTML`).
-* **Privacidade e segurança:** A `OPENAI_API_KEY` reside apenas no servidor; o Express serve exclusivamente `index.html`, `css/` e `js/` (bloqueando `.env`, `server/`, `package.json` etc.); erros do provedor são traduzidos para códigos internos sem expor stack traces ou chaves; e o histórico da conversa fica apenas no `sessionStorage` da aba do usuário.
+  4. `server/services/aiService.js` combina a instrução de sistema (`systemInstruction`), converte os turnos para a estrutura nativa do Gemini e chama a API utilizando `generateContent` ou `generateContentStream`.
+  5. A resposta é devolvida em JSON (`{ resposta, modelo }`) ou via Server-Sent Events (`text/event-stream`), renderizada no frontend com nós DOM seguros.
+* **Privacidade e segurança:** A `GEMINI_API_KEY` reside apenas no servidor; o Express serve exclusivamente `index.html`, `css/` e `js/` (bloqueando `.env`, `server/`, `package.json` etc.); erros do provedor são traduzidos para códigos padronizados sem expor stack traces ou credenciais; e o histórico da conversa fica apenas no `sessionStorage` da aba do usuário.
 
 ---
 
