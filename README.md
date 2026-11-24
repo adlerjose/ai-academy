@@ -30,7 +30,7 @@ O projeto combina uma interface leve em **Vanilla Stack** com um backend em **No
   * **JavaScript Vanilla (ES6+):** Interações da interface, menu mobile, revelação dos cards de cursos, validação do formulário e cliente do chatbot via Fetch API.
 * **Backend e Inteligência Artificial:**
   * **Node.js + Express:** Servidor HTTP que entrega os arquivos públicos do frontend e expõe o endpoint `POST /api/chat`.
-  * **SDKs Oficiais de IA (`@google/genai` e `openai`):** Comunicação com modelos Google Gemini (padrão `gemini-3.5-flash` com fallback automático para `gemini-3.6-flash`) ou OpenAI (`gpt-4.1-mini`), configuráveis por variável de ambiente.
+  * **SDKs Oficiais de IA (`@google/genai` e `openai`):** Comunicação com modelos Google Gemini (padrão `gemini-3.1-flash-lite` com Thinking Level MINIMAL para ultra-baixa latência) ou OpenAI (`gpt-4.1-mini`), configuráveis por variável de ambiente.
   * **`dotenv` e `express-rate-limit`:** Gerenciamento de variáveis de ambiente e proteção contra abuso do endpoint.
 
 ---
@@ -89,7 +89,7 @@ Abra o arquivo `.env` em um editor de texto e preencha a chave da API (`GEMINI_A
 
 ```env
 GEMINI_API_KEY=sua-chave-real-aqui
-AI_MODEL=gemini-3.5-flash
+AI_MODEL=gemini-3.1-flash-lite
 PORT=3000
 HOST=127.0.0.1
 ```
@@ -103,7 +103,7 @@ HOST=127.0.0.1
 | `GEMINI_API_KEY` | *(obrigatória se usar Gemini)* | Chave de autenticação da API Google Gemini / Vertex AI. |
 | `OPENAI_API_KEY` | *(obrigatória se usar OpenAI)* | Chave de autenticação da API da OpenAI. |
 | `AI_PROVIDER` | *(auto-detectado)* | Define explicitamente o provedor (`gemini` ou `openai`). |
-| `AI_MODEL` / `OPENAI_MODEL` | `gemini-3.5-flash` / `gpt-4.1-mini` | Modelo utilizado pelo Turing. |
+| `AI_MODEL` / `OPENAI_MODEL` | `gemini-3.1-flash-lite` / `gpt-4.1-mini` | Modelo utilizado pelo Turing. |
 | `OPENAI_BASE_URL` | *(oficial OpenAI)* | Endpoint customizado caso utilize um provedor compatível com OpenAI. |
 | `OPENAI_TIMEOUT_MS` | `45000` | Tempo limite (ms) da chamada ao provedor de IA. |
 | `OPENAI_MAX_RETRIES` | `1` | Tentativas automáticas em falhas transitórias do provedor. |
@@ -183,7 +183,7 @@ A plataforma está totalmente preparada para execução serverless na **Vercel**
 2. Adicione as seguintes **Environment Variables** nas configurações do projeto na Vercel:
    * `GEMINI_API_KEY`: sua chave da API Google Gemini (ou `OPENAI_API_KEY` se utilizar OpenAI).
    * `AI_PROVIDER`: `gemini` (opcional, detectado automaticamente ao informar a chave).
-   * `AI_MODEL`: `gemini-2.5-flash` ou `gemini-1.5-flash` (ou `gemini-3.5-flash`, `gpt-4.1-mini`).
+   * `AI_MODEL`: `gemini-3.1-flash-lite` (padrão de menor latência) ou `gemini-2.5-flash` / `gpt-4.1-mini`.
 3. Ao realizar o deploy, a Vercel roteará requisições `/api/*` para a Serverless Function (`api/index.js` -> `server.js`) e servirá arquivos estáticos (`index.html`, `css/`, `js/`) diretamente pela CDN global de alta performance.
 
 ---
