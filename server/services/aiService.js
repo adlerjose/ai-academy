@@ -1,20 +1,21 @@
 'use strict';
 
 /**
- * Serviço de integração com o provedor de IA.
- * Suporta:
- *  - Google Gemini / Vertex AI via SDK oficial `@google/genai` (chaves `AQ....` ou `AIza...`);
- *  - OpenAI (e compatíveis) via SDK oficial `openai` (chaves `sk-...`).
- *
- * Responsável por montar a requisição, aplicar timeout e traduzir erros do
- * provedor em erros internos seguros (sem vazar detalhes ao cliente).
+ * AI Academy — Serviço de Inteligência Artificial do Turing.
+ * Execução EXCLUSIVA com Google Gemini 3.1 Flash-Lite (@google/genai).
+ * Política estrita de modelo único: sem fallbacks, sem retries em outros modelos e sem outros provedores.
  */
 
-const OpenAI = require('openai');
-const { GoogleGenAI, ThinkingLevel } = require('@google/genai');
-const { config, iaConfigurada } = require('../config/aiConfig');
+const { GoogleGenAI } = require('@google/genai');
+const {
+  config,
+  iaConfigurada,
+  TURING_MODEL,
+  TURING_THINKING_LEVEL,
+  TURING_PROVIDER
+} = require('../config/aiConfig');
 
-/** Erro de domínio com código estável e status HTTP; a mensagem é segura para o usuário. */
+/** Erro de domínio seguro: transporta código estável e mensagem apropriada para o usuário. */
 class ErroIA extends Error {
   constructor(codigo, status, mensagemUsuario, causa) {
     super(mensagemUsuario);
@@ -25,66 +26,52 @@ class ErroIA extends Error {
   }
 }
 
-let clienteOpenai = null;
-const clientesGemini = new Map();
+let clienteGemini = null;
 
 const assegurarConfigurada = () => {
   if (!iaConfigurada()) {
     throw new ErroIA(
       'AI_NOT_CONFIGURED',
       503,
-      'O mecanismo de inteligência do Turing ainda não foi configurado neste servidor.'
+      'O mecanismo de inteligência do Turing ainda não foi configurado neste servidor. GEMINI_API_KEY ausente.'
     );
   }
 };
 
-const obterClienteOpenai = () => {
+/**
+ * Retorna a instância única do cliente GoogleGenAI.
+ * Utiliza o modo Gemini Developer API para chaves do Google AI Studio.
+ */
+const obterClienteGemini = () => {
   assegurarConfigurada();
-  if (!clienteOpenai) {
-    clienteOpenai = new OpenAI({
-      apiKey: config.ia.chaveApi,
-      baseURL: config.ia.baseUrl,
-      timeout: config.ia.timeoutMs,
-      maxRetries: config.ia.maxRetries
+  if (!clienteGemini) {
+    clienteGemini = new GoogleGenAI({
+      apiKey: config.ia.chaveApi
     });
   }
-  return clienteOpenai;
+  return clienteGemini;
 };
 
-const obterClienteGemini = (vertexai = config.ia.vertexAi) => {
-  assegurarConfigurada();
-  const chaveCache = `${vertexai ? 'vertex' : 'dev'}:${config.ia.chaveApi}`;
-  if (!clientesGemini.has(chaveCache)) {
-    clientesGemini.set(
-      chaveCache,
-      new GoogleGenAI({
-        apiKey: config.ia.chaveApi,
-        vertexai
-      })
-    );
-  }
-  return clientesGemini.get(chaveCache);
+const resetarClienteGemini = () => {
+  clienteGemini = null;
 };
 
-// Modelos de raciocínio (série o*, gpt-5*) não aceitam o parâmetro `temperature`.
-const aceitaTemperatura = (modelo) => !/^(o\d|gpt-5)/i.test(modelo);
-
-/** Remove credenciais ou dados sensíveis de mensagens de log ou causas de erro. */
+/** Mascara credenciais em mensagens técnicas para logs seguros. */
 const sanitizarLog = (texto) =>
   String(texto || '')
     .replace(/AIza[A-Za-z0-9_-]{30,}/g, '[CHAVE_GEMINI_OCULTADA]')
     .replace(/sk-(proj-)?[A-Za-z0-9_-]{20,}/g, '[CHAVE_OPENAI_OCULTADA]')
     .replace(/AQ\.[A-Za-z0-9_-]{20,}/g, '[CHAVE_VERTEX_OCULTADA]');
 
-/** Converte erros dos SDKs (OpenAI ou Google GenAI) / rede em ErroIA com mensagens amigáveis. */
+/** Converte exceções do SDK @google/genai ou rede em ErroIA com códigos e status padronizados. */
 const traduzirErro = (erro) => {
   if (erro instanceof ErroIA) return erro;
 
-  const mensagem = sanitizarLog(erro?.message || '');
+  const mensagemBruta = String(erro?.message || '');
+  const mensagem = sanitizarLog(mensagemBruta);
   const statusHttp = Number(erro?.status || erro?.statusCode || erro?.code || 0);
 
   if (
-    erro instanceof OpenAI.APIConnectionTimeoutError ||
     erro?.name === 'AbortError' ||
     erro?.name === 'TimeoutError' ||
     /timed?\s*out|aborted|deadline_exceeded/i.test(mensagem)
@@ -93,8 +80,6 @@ const traduzirErro = (erro) => {
   }
 
   if (
-    erro instanceof OpenAI.AuthenticationError ||
-    erro instanceof OpenAI.PermissionDeniedError ||
     statusHttp === 401 ||
     statusHttp === 403 ||
     /API_KEY_INVALID|UNAUTHENTICATED|PERMISSION_DENIED|invalid api key/i.test(mensagem)
@@ -102,20 +87,30 @@ const traduzirErro = (erro) => {
     return new ErroIA(
       'AI_AUTH_ERROR',
       503,
-      'O mecanismo de inteligência está com a configuração de acesso inválida.',
+      'A autenticação com o mecanismo de inteligência falhou. Verifique a GEMINI_API_KEY.',
       erro
     );
   }
 
   if (
-    erro instanceof OpenAI.RateLimitError ||
+    statusHttp === 404 ||
+    /models\/.*not found|model_unavailable|NOT_FOUND/i.test(mensagem)
+  ) {
+    return new ErroIA(
+      'AI_MODEL_UNAVAILABLE',
+      502,
+      'O modelo de inteligência solicitado não está disponível no momento.',
+      erro
+    );
+  }
+
+  if (
     statusHttp === 429 ||
     /RESOURCE_EXHAUSTED|rate.?limit|quota/i.test(mensagem)
   ) {
     const semCota =
       erro?.code === 'insufficient_quota' ||
-      erro?.error?.code === 'insufficient_quota' ||
-      /quota|billing/i.test(mensagem);
+      /quota|billing|RESOURCE_EXHAUSTED/i.test(mensagem);
     return new ErroIA(
       semCota ? 'AI_QUOTA_EXCEEDED' : 'AI_RATE_LIMITED',
       semCota ? 503 : 429,
@@ -126,23 +121,15 @@ const traduzirErro = (erro) => {
     );
   }
 
-  if (
-    erro instanceof OpenAI.NotFoundError ||
-    erro instanceof OpenAI.BadRequestError ||
-    statusHttp === 400 ||
-    statusHttp === 404
-  ) {
+  if (statusHttp === 400 || /INVALID_ARGUMENT|bad request/i.test(mensagem)) {
     return new ErroIA('AI_BAD_REQUEST', 502, 'O mecanismo de inteligência não conseguiu processar a solicitação.', erro);
   }
 
-  if (
-    erro instanceof OpenAI.APIConnectionError ||
-    /ECONNREFUSED|ENOTFOUND|EAI_AGAIN|fetch failed|network/i.test(mensagem)
-  ) {
+  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|fetch failed|network/i.test(mensagem)) {
     return new ErroIA('AI_UNAVAILABLE', 502, 'Não foi possível conectar ao mecanismo de inteligência.', erro);
   }
 
-  if (erro instanceof OpenAI.APIError || (statusHttp >= 500 && statusHttp < 600)) {
+  if (statusHttp >= 500 && statusHttp < 600) {
     return new ErroIA('AI_UNAVAILABLE', 502, 'O mecanismo de inteligência está indisponível no momento.', erro);
   }
 
@@ -150,10 +137,8 @@ const traduzirErro = (erro) => {
 };
 
 /**
- * Converte a lista de mensagens `{ role: 'user'|'assistant', content }` para o
- * formato `contents` esperado pelo SDK `@google/genai`, garantindo que a
- * conversa comece com uma mensagem de `user` (a saudação inicial do assistente,
- * se presente no início, é preservada como contexto na primeira mensagem).
+ * Converte histórico de mensagens para o formato de contents do Gemini,
+ * garantindo alternância correta de turnos (user / model).
  */
 const converterMensagensParaGemini = (mensagens) => {
   const conteudos = [];
@@ -181,173 +166,93 @@ const converterMensagensParaGemini = (mensagens) => {
   return conteudos;
 };
 
-const MODELOS_FALLBACK_GEMINI = [
-  'gemini-2.5-flash'
-];
-
 /**
- * Retorna a configuração de raciocínio officially suportada pelo Gemini 3.1 Flash-Lite.
- * Utiliza exclusivamente thinkingLevel: 'MINIMAL' para priorizar a menor latência.
- * Nenhum parâmetro extra não suportado (ex.: includeThoughts) é enviado.
+ * Executa a chamada à API do Gemini utilizando EXCLUSIVAMENTE o modelo gemini-3.1-flash-lite.
+ * Política de Modelo Único: Nenhuma tentativa em outro modelo é realizada em hipótese alguma.
+ *
+ * @param {object} params
+ * @param {string} params.systemPrompt
+ * @param {Array<{role:'user'|'assistant', content:string}>} params.mensagens
+ * @param {AbortSignal} [params.signal]
+ * @param {(chunk: string) => void} [params.onChunk]
+ * @returns {Promise<{resposta:string, modelo:string, uso?:object, truncada?:boolean}>}
  */
-const obterThinkingConfig = (modelo = '') => {
-  return {
-    thinkingLevel: 'MINIMAL'
-  };
-};
+const gerarResposta = async ({ systemPrompt, mensagens, signal, onChunk }) => {
+  assegurarConfigurada();
 
-const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
+  const ai = obterClienteGemini();
   const conteudos = converterMensagensParaGemini(mensagens);
-  const controladorTotal = new AbortController();
-  const timerTotal = setTimeout(() => controladorTotal.abort(), config.ia.timeoutMs);
-  const aoAbortarExterno = () => controladorTotal.abort();
-  signal?.addEventListener('aborted', aoAbortarExterno, { once: true });
-  signal?.addEventListener('abort', aoAbortarExterno, { once: true });
+  const inicio = Date.now();
 
-  const modelosParaTentar = [
-    config.ia.modelo,
-    ...MODELOS_FALLBACK_GEMINI.filter((m) => m !== config.ia.modelo)
-  ];
-
-  // Limite individual por tentativa para evitar que uma única chamada bloqueie o tempo limite.
-  const timeoutPorTentativa = Math.min(config.ia.timeoutMs, Math.max(12000, Math.floor(config.ia.timeoutMs / 2)));
-
-  const chamar = async (modelo, vertexai) => {
-    const ai = obterClienteGemini(vertexai);
-    const ctrlTentativa = new AbortController();
-    const timerTentativa = setTimeout(() => ctrlTentativa.abort(), timeoutPorTentativa);
-    const propagarAbort = () => ctrlTentativa.abort();
-    controladorTotal.signal.addEventListener('abort', propagarAbort, { once: true });
-
-    const configChamada = {
-      systemInstruction: systemPrompt,
-      maxOutputTokens: config.ia.maxTokensResposta,
-      temperature: config.ia.temperatura,
-      abortSignal: ctrlTentativa.signal
-    };
-
-    const thinkingConfig = obterThinkingConfig(modelo);
-    if (thinkingConfig) {
-      configChamada.thinkingConfig = thinkingConfig;
-    }
-
-    try {
-      if (typeof onChunk === 'function') {
-        const stream = await ai.models.generateContentStream({
-          model: modelo,
-          contents: conteudos,
-          config: configChamada
-        });
-
-        let textoAcumulado = '';
-        let motivoFinal = null;
-        let metadataUso = null;
-        let versaoModelo = modelo;
-
-        for await (const chunk of stream) {
-          if (controladorTotal.signal.aborted) break;
-          const pedaco = chunk.text || '';
-          if (pedaco) {
-            textoAcumulado += pedaco;
-            onChunk(pedaco);
-          }
-          if (chunk.candidates?.[0]?.finishReason) {
-            motivoFinal = chunk.candidates[0].finishReason;
-          }
-          if (chunk.usageMetadata) {
-            metadataUso = chunk.usageMetadata;
-          }
-          if (chunk.modelVersion) {
-            versaoModelo = chunk.modelVersion;
-          }
-        }
-
-        return {
-          text: textoAcumulado,
-          modelVersion: versaoModelo,
-          candidates: [{ finishReason: motivoFinal }],
-          usageMetadata: metadataUso
-        };
-      }
-
-      return await ai.models.generateContent({
-        model: modelo,
-        contents: conteudos,
-        config: configChamada
-      });
-    } catch (erroTentativa) {
-      const msg = String(erroTentativa?.message || '');
-      // Se um modelo legado de fallback não aceitar thinkingConfig, remove thinkingConfig (nunca injeta thinkingBudget: 0)
-      if (configChamada.thinkingConfig && /thinkingLevel|thinkingConfig|unknown field/i.test(msg)) {
-        delete configChamada.thinkingConfig;
-        if (typeof onChunk === 'function') {
-          const stream = await ai.models.generateContentStream({
-            model: modelo,
-            contents: conteudos,
-            config: configChamada
-          });
-          let textoAcumulado = '';
-          for await (const chunk of stream) {
-            const pedaco = chunk.text || '';
-            if (pedaco) {
-              textoAcumulado += pedaco;
-              onChunk(pedaco);
-            }
-          }
-          return { text: textoAcumulado, modelVersion: modelo };
-        }
-        return await ai.models.generateContent({
-          model: modelo,
-          contents: conteudos,
-          config: configChamada
-        });
-      }
-      throw erroTentativa;
-    } finally {
-      clearTimeout(timerTentativa);
-      controladorTotal.signal.removeEventListener('abort', propagarAbort);
-    }
+  const configChamada = {
+    systemInstruction: systemPrompt,
+    maxOutputTokens: config.ia.maxTokensResposta,
+    temperature: config.ia.temperatura,
+    thinkingConfig: {
+      thinkingLevel: TURING_THINKING_LEVEL
+    },
+    abortSignal: signal
   };
 
   try {
-    let respostaBruta;
-    let modeloUsado = config.ia.modelo;
-    let ultimoErro;
+    if (typeof onChunk === 'function') {
+      const stream = await ai.models.generateContentStream({
+        model: TURING_MODEL,
+        contents: conteudos,
+        config: configChamada
+      });
 
-    for (const modeloCandidato of modelosParaTentar) {
-      if (controladorTotal.signal.aborted) break;
-      try {
-        respostaBruta = await chamar(modeloCandidato, config.ia.vertexAi);
-        modeloUsado = modeloCandidato;
-        break;
-      } catch (erroModelo) {
-        ultimoErro = erroModelo;
-        const msg = String(erroModelo?.message || '');
-        const status = Number(erroModelo?.status || erroModelo?.statusCode || erroModelo?.code || 0);
-        const msgLimpa = sanitizarLog(msg);
+      let textoAcumulado = '';
+      let motivoFinal = null;
+      let metadataUso = null;
+      let versaoModelo = TURING_MODEL;
 
-        // Registro interno técnico seguro (sem credenciais) para diagnóstico em observabilidade/Vercel
-        console.error(
-          `[gemini:erro] modelo=${modeloCandidato} status=${status || 'desconhecido'} detalhe=${msgLimpa}`
-        );
-
-        // Apenas erros transitórios de sobrecarga de serviço (503 / 429 com alta demanda) justificam fallback.
-        // Erros de configuração, credenciais (401), permissão (403), parâmetros inválidos (400) ou cancelamento falham imediatamente.
-        const ehTransitorio =
-          status === 503 ||
-          status === 429 ||
-          /RESOURCE_EXHAUSTED|UNAVAILABLE|high demand/i.test(msg);
-
-        if (!ehTransitorio || controladorTotal.signal.aborted) {
-          throw erroModelo;
+      for await (const chunk of stream) {
+        if (signal?.aborted) break;
+        const pedaco = chunk.text || '';
+        if (pedaco) {
+          textoAcumulado += pedaco;
+          onChunk(pedaco);
         }
-        // Se for erro transitório de serviço, tenta no máximo o modelo de contingência
-        continue;
+        if (chunk.candidates?.[0]?.finishReason) {
+          motivoFinal = chunk.candidates[0].finishReason;
+        }
+        if (chunk.usageMetadata) {
+          metadataUso = chunk.usageMetadata;
+        }
+        if (chunk.modelVersion) {
+          versaoModelo = chunk.modelVersion;
+        }
       }
+
+      const duracao = Date.now() - inicio;
+      const textoLimpo = textoAcumulado.trim();
+      if (!textoLimpo) {
+        throw new ErroIA('AI_EMPTY_RESPONSE', 502, 'O mecanismo de inteligência retornou uma resposta vazia.');
+      }
+
+      return {
+        resposta: textoLimpo,
+        modelo: versaoModelo || TURING_MODEL,
+        uso: metadataUso
+          ? {
+              prompt_tokens: metadataUso.promptTokenCount,
+              completion_tokens: metadataUso.candidatesTokenCount,
+              total_tokens: metadataUso.totalTokenCount
+            }
+          : undefined,
+        truncada: motivoFinal === 'MAX_TOKENS',
+        duracaoMs: duracao
+      };
     }
 
-    if (!respostaBruta && ultimoErro) throw ultimoErro;
+    const respostaBruta = await ai.models.generateContent({
+      model: TURING_MODEL,
+      contents: conteudos,
+      config: configChamada
+    });
 
+    const duracao = Date.now() - inicio;
     const texto = (respostaBruta?.text || '').trim();
     if (!texto) {
       throw new ErroIA('AI_EMPTY_RESPONSE', 502, 'O mecanismo de inteligência retornou uma resposta vazia.');
@@ -364,90 +269,34 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
 
     return {
       resposta: texto,
-      modelo: respostaBruta?.modelVersion || modeloUsado,
+      modelo: respostaBruta?.modelVersion || TURING_MODEL,
       uso,
-      truncada: candidato?.finishReason === 'MAX_TOKENS'
+      truncada: candidato?.finishReason === 'MAX_TOKENS',
+      duracaoMs: duracao
     };
-  } finally {
-    clearTimeout(timerTotal);
-    signal?.removeEventListener('abort', aoAbortarExterno);
-  }
-};
-
-const gerarComOpenai = async ({ systemPrompt, mensagens, signal, onChunk }) => {
-  const openai = obterClienteOpenai();
-
-  const corpo = {
-    model: config.ia.modelo,
-    messages: [{ role: 'system', content: systemPrompt }, ...mensagens],
-    max_completion_tokens: config.ia.maxTokensResposta
-  };
-  if (aceitaTemperatura(config.ia.modelo)) corpo.temperature = config.ia.temperatura;
-
-  if (typeof onChunk === 'function') {
-    const stream = await openai.chat.completions.create(
-      { ...corpo, stream: true },
-      { signal }
-    );
-    let textoCompleto = '';
-    let modelUsado = config.ia.modelo;
-    for await (const parte of stream) {
-      if (signal?.aborted) break;
-      const delta = parte.choices?.[0]?.delta?.content || '';
-      if (delta) {
-        textoCompleto += delta;
-        onChunk(delta);
-      }
-      if (parte.model) modelUsado = parte.model;
-    }
-    const textoLimpo = textoCompleto.trim();
-    if (!textoLimpo) {
-      throw new ErroIA('AI_EMPTY_RESPONSE', 502, 'O mecanismo de inteligência retornou uma resposta vazia.');
-    }
-    return {
-      resposta: textoLimpo,
-      modelo: modelUsado
-    };
-  }
-
-  const conclusao = await openai.chat.completions.create(corpo, { signal });
-  const escolha = conclusao.choices?.[0];
-  const resposta = (escolha?.message?.content || '').trim();
-
-  if (!resposta) {
-    throw new ErroIA('AI_EMPTY_RESPONSE', 502, 'O mecanismo de inteligência retornou uma resposta vazia.');
-  }
-
-  return {
-    resposta,
-    modelo: conclusao.model,
-    uso: conclusao.usage,
-    truncada: escolha.finish_reason === 'length'
-  };
-};
-
-/**
- * Envia a conversa ao modelo e retorna o texto da resposta.
- * Se onChunk for fornecido, executa via streaming chamando o callback a cada fragmento gerado.
- *
- * @param {object} params
- * @param {string} params.systemPrompt
- * @param {Array<{role:'user'|'assistant', content:string}>} params.mensagens Histórico já validado.
- * @param {AbortSignal} [params.signal] Cancelamento (ex.: cliente desconectou).
- * @param {(chunk: string) => void} [params.onChunk] Callback de streaming para visualização antecipada.
- * @returns {Promise<{resposta:string, modelo:string, uso?:object}>}
- */
-const gerarResposta = async ({ systemPrompt, mensagens, signal, onChunk }) => {
-  assegurarConfigurada();
-  try {
-    if (config.ia.provedor === 'gemini') {
-      return await gerarComGemini({ systemPrompt, mensagens, signal, onChunk });
-    }
-    return await gerarComOpenai({ systemPrompt, mensagens, signal, onChunk });
   } catch (erro) {
+    const duracao = Date.now() - inicio;
+    const statusHttp = Number(erro?.status || erro?.statusCode || erro?.code || 0);
+    const msgLimpa = sanitizarLog(erro?.message || '');
+
+    // Registro interno técnico estruturado para diagnóstico sem vazamento de segredos
+    console.error(
+      `[gemini:erro] operacao=${typeof onChunk === 'function' ? 'stream' : 'sync'} ` +
+        `modelo=${TURING_MODEL} status=${statusHttp || 'desconhecido'} ` +
+        `duracao=${duracao}ms detalhe=${msgLimpa}`
+    );
+
+    // POLÍTICA DE MODELO ÚNICO: Falha imediata, sem tentar nenhum outro modelo
     throw traduzirErro(erro);
   }
 };
+
+/**
+ * Retorna a configuração de raciocínio suportada pelo Gemini 3.1 Flash-Lite.
+ */
+const obterThinkingConfig = () => ({
+  thinkingLevel: TURING_THINKING_LEVEL
+});
 
 module.exports = {
   gerarResposta,
@@ -455,5 +304,9 @@ module.exports = {
   traduzirErro,
   converterMensagensParaGemini,
   obterThinkingConfig,
-  MODELOS_FALLBACK_GEMINI
+  obterClienteGemini,
+  resetarClienteGemini,
+  TURING_MODEL,
+  TURING_THINKING_LEVEL,
+  TURING_PROVIDER
 };

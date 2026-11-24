@@ -17,7 +17,7 @@ if (require.main === module) {
   const servidor = app.listen(porta, host, () => {
     console.log(`\n  AI Academy rodando em http://${host === '0.0.0.0' ? 'localhost' : host}:${porta}`);
     console.log(`  Catálogo: ${app.locals.cursos?.length ?? 6} formações carregadas de index.html`);
-    console.log(`  Modelo de IA: ${config.ia.modelo}`);
+    console.log(`  Provedor de IA: Google Gemini (${config.ia.modelo})`);
     if (!iaConfigurada()) {
       console.warn('  [aviso] Chave de API não configurada. Defina GEMINI_API_KEY no arquivo .env.\n');
     } else {

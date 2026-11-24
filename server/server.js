@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 
-const { config, iaConfigurada } = require('./config/aiConfig');
+const { config, iaConfigurada, TURING_MODEL, TURING_THINKING_LEVEL, TURING_PROVIDER } = require('./config/aiConfig');
 const { carregarCatalogo } = require('./services/catalogService');
 const { construirSystemPrompt } = require('./config/turingPrompt');
 const { criarRotaChat } = require('./routes/chat');
@@ -139,7 +139,19 @@ const criarApp = ({ registrar = console } = {}) => {
   api.use(express.json({ limit: '48kb' }));
 
   api.get('/health', (req, res) => {
-    res.json({ status: 'ok', iaConfigurada: iaConfigurada(), cursos: cursos.length });
+    const configurada = iaConfigurada();
+    const payload = {
+      status: 'ok',
+      iaConfigurada: configurada,
+      provider: TURING_PROVIDER,
+      model: TURING_MODEL,
+      thinkingLevel: TURING_THINKING_LEVEL,
+      cursos: cursos.length
+    };
+    if (!configurada) {
+      payload.mensagem = 'Configuração da API pendente (GEMINI_API_KEY ausente).';
+    }
+    return res.json(payload);
   });
 
   api.use(criarRotaChat({ systemPrompt, registrar }));
@@ -182,9 +194,9 @@ if (require.main === module) {
   const servidor = app.listen(porta, host, () => {
     console.log(`\n  AI Academy rodando em http://${host === '0.0.0.0' ? 'localhost' : host}:${porta}`);
     console.log(`  Catálogo: ${app.locals.cursos.length} formações carregadas de index.html`);
-    console.log(`  Modelo de IA: ${config.ia.modelo}`);
+    console.log(`  Provedor de IA: Google Gemini (${TURING_MODEL})`);
     if (!iaConfigurada()) {
-      console.warn('  [aviso] OPENAI_API_KEY não configurada. O chat retornará erro até que a chave seja definida no arquivo .env.\n');
+      console.warn('  [aviso] GEMINI_API_KEY não configurada. O chat retornará erro até que a chave seja definida no arquivo .env.\n');
     } else {
       console.log('  Chave da API: configurada (mantida apenas no servidor)\n');
     }

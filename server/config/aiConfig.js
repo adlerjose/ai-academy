@@ -1,11 +1,14 @@
 'use strict';
 
 /**
- * Configuração centralizada do backend e da integração com o provedor de IA.
- * Suporta Google Gemini / Vertex AI (@google/genai) e OpenAI (openai),
- * detectando automaticamente o provedor pela variável configurada ou pelo
- * formato da chave (ex.: "AQ...." → Vertex AI Express Mode; "AIza..." → Gemini API; "sk-..." → OpenAI).
+ * AI Academy — Configuração Centralizada do Assistente Turing.
+ * Modelo Exclusivo: Gemini 3.1 Flash-Lite (@google/genai).
+ * Regra absoluta: sem provedores alternativos, sem fallbacks e sem troca de modelo.
  */
+
+const TURING_MODEL = 'gemini-3.1-flash-lite';
+const TURING_THINKING_LEVEL = 'MINIMAL';
+const TURING_PROVIDER = 'gemini';
 
 const inteiro = (valor, padrao, { min = 1, max = Number.MAX_SAFE_INTEGER } = {}) => {
   const numero = Number.parseInt(valor, 10);
@@ -25,72 +28,11 @@ const listaOrigens = (valor) =>
     .map((origem) => origem.trim())
     .filter(Boolean);
 
-const detectarProvedor = (provedorExplicito, chaveGemini, chaveOpenai, baseUrl) => {
-  const explicito = (provedorExplicito || '').trim().toLowerCase();
-  if (explicito === 'gemini' || explicito === 'google' || explicito === 'vertex') return 'gemini';
-  if (explicito === 'openai') return 'openai';
-
-  // Se houver baseURL customizada (ex.: testes locais ou proxy OpenAI-compatible), usa o cliente OpenAI.
-  if (baseUrl) return 'openai';
-
-  if (chaveGemini && !chaveOpenai) return 'gemini';
-  if (chaveOpenai && !chaveGemini) return 'openai';
-
-  const chaveCandidata = chaveGemini || chaveOpenai;
-  if (/^(AQ\.|AIza)/i.test(chaveCandidata)) return 'gemini';
-  return 'openai';
-};
-
-const MODELOS_OBSOLETOS = new Set([
-  'gemini-3.5-flash',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash-lite'
-]);
-
 const lerConfig = () => {
   const porta = inteiro(process.env.PORT, 3000, { min: 1, max: 65535 });
-  const chaveGemini = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
-  const chaveOpenai = (process.env.OPENAI_API_KEY || '').trim();
-  const chaveGenerica = (process.env.AI_API_KEY || '').trim();
-  const baseUrl = (process.env.OPENAI_BASE_URL || '').trim() || undefined;
 
-  const provedor = detectarProvedor(
-    process.env.AI_PROVIDER,
-    chaveGemini || (/^(AQ\.|AIza)/i.test(chaveGenerica) ? chaveGenerica : ''),
-    chaveOpenai || chaveGenerica,
-    baseUrl
-  );
-
-  const chaveApi =
-    provedor === 'gemini'
-      ? chaveGemini || chaveGenerica || chaveOpenai
-      : chaveOpenai || chaveGenerica || chaveGemini;
-
-  const modeloPadrao = provedor === 'gemini' ? 'gemini-3.1-flash-lite' : 'gpt-4.1-mini';
-
-  // Precedência de variáveis: GEMINI_MODEL é priorizada para o Gemini, seguida por AI_MODEL.
-  // Nomes de modelos obsoletos de versões anteriores (ex.: gemini-3.5-flash) são ignorados.
-  let modeloEnv = '';
-  if (provedor === 'gemini') {
-    const especifico = (process.env.GEMINI_MODEL || '').trim();
-    const generico = (process.env.AI_MODEL || '').trim();
-    if (especifico && !MODELOS_OBSOLETOS.has(especifico.toLowerCase())) {
-      modeloEnv = especifico;
-    } else if (generico && !/^(gpt-|o\d)/i.test(generico) && !MODELOS_OBSOLETOS.has(generico.toLowerCase())) {
-      modeloEnv = generico;
-    }
-  } else {
-    modeloEnv = (process.env.OPENAI_MODEL || process.env.AI_MODEL || '').trim();
-  }
-
-  const modelo = modeloEnv || modeloPadrao;
-
-  // Vertex AI Express Mode (chaves "AQ.") vs Google AI Studio (chaves "AIza").
-  // Chaves do Google AI Studio SEMPRE utilizam a Gemini Developer API (vertexai: false).
-  const vertexAi = Boolean(
-    (process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true' || /^AQ\./i.test(chaveApi)) &&
-      !/^AIza/i.test(chaveApi)
-  );
+  // A única credencial de IA aceita no projeto é GEMINI_API_KEY (lida exclusivamente no backend).
+  const chaveApi = (process.env.GEMINI_API_KEY || '').trim();
 
   return Object.freeze({
     servidor: Object.freeze({
@@ -104,23 +46,22 @@ const lerConfig = () => {
     }),
 
     ia: Object.freeze({
-      provedor,
-      vertexAi,
-      // A chave NUNCA é enviada ao navegador; é lida apenas aqui, no processo Node.
+      // Regra absoluta: modelo e provedor estritamente fixos.
+      provedor: TURING_PROVIDER,
+      modelo: TURING_MODEL,
+      thinkingLevel: TURING_THINKING_LEVEL,
+      // A chave NUNCA é enviada ao navegador; reside exclusivamente no processo Node.
       chaveApi,
-      modelo,
-      baseUrl,
-      timeoutMs: inteiro(process.env.AI_TIMEOUT_MS || process.env.OPENAI_TIMEOUT_MS, 45000, {
+      timeoutMs: inteiro(process.env.CHAT_TIMEOUT_MS, 30000, {
         min: 1000,
-        max: 120000
+        max: 60000
       }),
-      maxRetries: inteiro(process.env.AI_MAX_RETRIES ?? process.env.OPENAI_MAX_RETRIES, 1, { min: 0, max: 5 }),
       maxTokensResposta: inteiro(
-        process.env.AI_MAX_OUTPUT_TOKENS || process.env.OPENAI_MAX_OUTPUT_TOKENS,
+        process.env.CHAT_MAX_OUTPUT_TOKENS,
         1200,
         { min: 64, max: 4000 }
       ),
-      temperatura: decimal(process.env.AI_TEMPERATURE ?? process.env.OPENAI_TEMPERATURE, 0.6, {
+      temperatura: decimal(process.env.CHAT_TEMPERATURE, 0.6, {
         min: 0,
         max: 1.5
       })
@@ -151,4 +92,12 @@ const config = new Proxy({}, {
   }
 });
 
-module.exports = { config, iaConfigurada, lerConfig, recarregarConfig };
+module.exports = {
+  config,
+  iaConfigurada,
+  lerConfig,
+  recarregarConfig,
+  TURING_MODEL,
+  TURING_THINKING_LEVEL,
+  TURING_PROVIDER
+};
