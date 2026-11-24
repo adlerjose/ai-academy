@@ -56,10 +56,10 @@ try {
 }
 
 const exemplo = fs.readFileSync(path.join(RAIZ, '.env.example'), 'utf8');
-if (/^OPENAI_API_KEY=\s*$/m.test(exemplo) && /^GEMINI_API_KEY=\s*$/m.test(exemplo)) {
-  ok('.env.example não contém credencial');
+if (/^GEMINI_API_KEY=\s*$/m.test(exemplo)) {
+  ok('.env.example não contém credencial e define GEMINI_API_KEY vazia');
 } else {
-  falhar('.env.example parece conter uma chave preenchida');
+  falhar('.env.example parece conter uma chave preenchida ou não define GEMINI_API_KEY');
 }
 
 console.log(falhas ? `\n${falhas} problema(s) encontrado(s).\n` : '\nNenhuma credencial exposta.\n');

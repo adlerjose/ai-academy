@@ -1,87 +1,182 @@
 'use strict';
 
 /**
- * Utilitários de teste: servidor HTTP que imita a API de Chat Completions da
- * OpenAI. Permite exercitar o SDK oficial e todo o fluxo do backend sem
- * consumir créditos nem depender de rede.
+ * Utilitários de teste:
+ * Mock oficial e rigoroso do SDK @google/genai com asserção global
+ * que garante o uso exclusivo do modelo gemini-3.1-flash-lite.
  */
 
-const http = require('node:http');
+const { GoogleGenAI } = require('@google/genai');
 require('dotenv').config({ quiet: true });
 
-const iniciarProvedorFalso = async () => {
+const MODELO_EXCLUSIVO = 'gemini-3.1-flash-lite';
+
+/**
+ * Instala mock no protótipo do SDK do Google GenAI com asserção global.
+ * Qualquer tentativa de chamada com outro modelo dispara um erro imediato.
+ */
+const instalarMockGemini = () => {
   const estado = {
-    modo: 'ok', // ok | erro500 | erro401 | cota | lento | vazio
+    modo: 'ok', // ok | erro500 | erro401 | cota | lento | vazio | erro404
     requisicoes: [],
     atrasoMs: 0
   };
 
-  const servidor = http.createServer((req, res) => {
-    let corpo = '';
-    req.on('data', (parte) => { corpo += parte; });
-    req.on('end', () => {
-      const json = corpo ? JSON.parse(corpo) : {};
-      estado.requisicoes.push({ url: req.url, headers: req.headers, corpo: json });
+  const clientExemplo = new GoogleGenAI({ apiKey: 'AIzaSyChaveTemporariaParaObterProto12345' });
+  const proto = Object.getPrototypeOf(clientExemplo.models);
 
-      const responder = (status, dados) => {
-        if (res.writableEnded || res.destroyed) return;
-        res.writeHead(status, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(dados));
-      };
+  const originalGenerate = proto.generateContentInternal;
+  const originalStream = proto.generateContentStreamInternal;
 
-      const sucesso = (conteudo) => responder(200, {
-        id: 'chatcmpl-teste',
-        object: 'chat.completion',
-        created: Math.floor(Date.now() / 1000),
-        model: json.model,
-        choices: [{ index: 0, finish_reason: 'stop', message: { role: 'assistant', content: conteudo } }],
-        usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 }
-      });
+  const asserirModeloExclusivo = (model) => {
+    if (model !== MODELO_EXCLUSIVO) {
+      throw new Error(
+        `Violação de política: tentativa de uso de modelo não autorizado "${model}". Apenas "${MODELO_EXCLUSIVO}" é permitido.`
+      );
+    }
+  };
 
-      if (json.stream && estado.modo === 'ok') {
-        const ultima = json.messages?.[json.messages.length - 1]?.content || '';
-        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
-        res.write(`data: ${JSON.stringify({ id: 'chatcmpl-stream', model: json.model, choices: [{ delta: { content: 'Resposta simulada para: ' } }] })}\n\n`);
-        return setTimeout(() => {
-          if (!res.writableEnded) {
-            res.write(`data: ${JSON.stringify({ id: 'chatcmpl-stream', model: json.model, choices: [{ delta: { content: ultima } }] })}\n\n`);
-            res.write('data: [DONE]\n\n');
-            res.end();
-          }
-        }, estado.atrasoMs || 10);
-      }
-
-      switch (estado.modo) {
-        case 'erro500':
-          return responder(500, { error: { message: 'falha interna do provedor', type: 'server_error' } });
-        case 'erro401':
-          return responder(401, { error: { message: 'Incorrect API key provided: sk-xxx', type: 'invalid_request_error', code: 'invalid_api_key' } });
-        case 'cota':
-          return responder(429, { error: { message: 'You exceeded your current quota', type: 'insufficient_quota', code: 'insufficient_quota' } });
-        case 'vazio':
-          return sucesso('');
-        case 'lento':
-          return setTimeout(() => sucesso('resposta tardia'), estado.atrasoMs);
-        default: {
-          const ultima = json.messages?.[json.messages.length - 1]?.content || '';
-          return setTimeout(() => sucesso(`Resposta simulada para: ${ultima}`), estado.atrasoMs);
-        }
-      }
+  proto.generateContentInternal = async function (params) {
+    asserirModeloExclusivo(params.model);
+    estado.requisicoes.push({
+      metodo: 'generateContent',
+      model: params.model,
+      contents: params.contents,
+      config: params.config
     });
-  });
 
-  await new Promise((resolve) => servidor.listen(0, '127.0.0.1', resolve));
-  const { port } = servidor.address();
+    if (params.config?.abortSignal?.aborted) {
+      const err = new Error('The operation was aborted');
+      err.name = 'AbortError';
+      throw err;
+    }
+
+    if (estado.atrasoMs > 0) {
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, estado.atrasoMs);
+        params.config?.abortSignal?.addEventListener('abort', () => {
+          clearTimeout(timer);
+          const err = new Error('The operation was aborted');
+          err.name = 'AbortError';
+          reject(err);
+        });
+      });
+    }
+
+    switch (estado.modo) {
+      case 'erro500': {
+        const err = new Error('falha interna do provedor');
+        err.status = 500;
+        throw err;
+      }
+      case 'erro401': {
+        const err = new Error('API_KEY_INVALID: User not authenticated');
+        err.status = 401;
+        throw err;
+      }
+      case 'cota': {
+        const err = new Error('RESOURCE_EXHAUSTED: You exceeded your current quota');
+        err.status = 429;
+        throw err;
+      }
+      case 'erro404': {
+        const err = new Error('models/gemini-inexistente is not found for API version v1beta');
+        err.status = 404;
+        throw err;
+      }
+      case 'vazio':
+        return {
+          text: '',
+          modelVersion: MODELO_EXCLUSIVO,
+          candidates: [{ finishReason: 'STOP' }]
+        };
+      default: {
+        const ultParte = params.contents?.at(-1)?.parts?.at(-1)?.text || '';
+        const matchEstudante = ultParte.match(/Resposta do estudante:\s*(.+)$/s);
+        const textoUsuario = matchEstudante ? matchEstudante[1] : ultParte;
+        return {
+          text: `Resposta simulada para: ${textoUsuario}`,
+          modelVersion: MODELO_EXCLUSIVO,
+          candidates: [{ finishReason: 'STOP' }],
+          usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 5, totalTokenCount: 15 }
+        };
+      }
+    }
+  };
+
+  proto.generateContentStreamInternal = async function* (params) {
+    asserirModeloExclusivo(params.model);
+    estado.requisicoes.push({
+      metodo: 'generateContentStream',
+      model: params.model,
+      contents: params.contents,
+      config: params.config
+    });
+
+    if (params.config?.abortSignal?.aborted) {
+      const err = new Error('The operation was aborted');
+      err.name = 'AbortError';
+      throw err;
+    }
+
+    switch (estado.modo) {
+      case 'erro500': {
+        const err = new Error('falha interna do provedor');
+        err.status = 500;
+        throw err;
+      }
+      case 'erro401': {
+        const err = new Error('API_KEY_INVALID: User not authenticated');
+        err.status = 401;
+        throw err;
+      }
+      case 'cota': {
+        const err = new Error('RESOURCE_EXHAUSTED: You exceeded your current quota');
+        err.status = 429;
+        throw err;
+      }
+      case 'erro404': {
+        const err = new Error('models/gemini-inexistente is not found');
+        err.status = 404;
+        throw err;
+      }
+      default: {
+        const ultParte = params.contents?.at(-1)?.parts?.at(-1)?.text || '';
+        const matchEstudante = ultParte.match(/Resposta do estudante:\s*(.+)$/s);
+        const textoUsuario = matchEstudante ? matchEstudante[1] : ultParte;
+
+        yield {
+          text: 'Resposta simulada para: ',
+          modelVersion: MODELO_EXCLUSIVO
+        };
+
+        if (estado.atrasoMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, estado.atrasoMs));
+        }
+
+        yield {
+          text: textoUsuario,
+          modelVersion: MODELO_EXCLUSIVO,
+          candidates: [{ finishReason: 'STOP' }],
+          usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 5, totalTokenCount: 15 }
+        };
+      }
+    }
+  };
+
+  const restaurar = () => {
+    proto.generateContentInternal = originalGenerate;
+    proto.generateContentStreamInternal = originalStream;
+  };
 
   return {
     estado,
-    baseUrl: `http://127.0.0.1:${port}/v1`,
-    fechar: () => new Promise((resolve) => {
-      servidor.closeAllConnections?.();
-      servidor.close(resolve);
-    })
+    fechar: restaurar,
+    restaurar
   };
 };
+
+const iniciarProvedorFalso = async () => instalarMockGemini();
 
 /** Sobe o app Express em uma porta aleatória. */
 const iniciarApp = async () => {
@@ -100,10 +195,11 @@ const iniciarApp = async () => {
   return {
     url: `http://127.0.0.1:${port}`,
     logs,
-    fechar: () => new Promise((resolve) => {
-      servidor.closeAllConnections?.();
-      servidor.close(resolve);
-    })
+    fechar: () =>
+      new Promise((resolve) => {
+        servidor.closeAllConnections?.();
+        servidor.close(resolve);
+      })
   };
 };
 
@@ -114,4 +210,10 @@ const postarChat = (url, corpo, headers = {}) =>
     body: typeof corpo === 'string' ? corpo : JSON.stringify(corpo)
   });
 
-module.exports = { iniciarProvedorFalso, iniciarApp, postarChat };
+module.exports = {
+  instalarMockGemini,
+  iniciarProvedorFalso,
+  iniciarApp,
+  postarChat,
+  MODELO_EXCLUSIVO
+};

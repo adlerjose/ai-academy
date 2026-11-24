@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Teste de ponta a ponta com a API REAL de IA (consome créditos).
+ * Teste de ponta a ponta com a API REAL do Google Gemini (consome créditos/cota).
  * Sobe o servidor em memória, simula uma conversa de diagnóstico com
  * múltiplas trocas pelo endpoint POST /api/chat e verifica:
- *   - respostas válidas do modelo;
+ *   - respostas válidas do modelo gemini-3.1-flash-lite;
  *   - preservação de contexto (o modelo lembra informações anteriores);
  *   - recomendação de cursos existentes no catálogo, sem inventar formações.
  *
- * Uso: npm run test:ia   (requer OPENAI_API_KEY no .env)
+ * Uso: npm run test:ia   (requer GEMINI_API_KEY no .env)
  */
 
 require('dotenv').config({ quiet: true });
@@ -28,7 +28,7 @@ const ROTEIRO = [
 
 const executar = async () => {
   if (!config.ia.chaveApi) {
-    console.error('\n✖ GEMINI_API_KEY ou OPENAI_API_KEY não configurada. Preencha o arquivo .env antes de executar este teste.\n');
+    console.error('\n✖ GEMINI_API_KEY não configurada. Preencha o arquivo .env antes de executar este teste.\n');
     process.exit(2);
   }
 
