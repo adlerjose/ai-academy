@@ -69,11 +69,18 @@ const obterClienteGemini = (vertexai = config.ia.vertexAi) => {
 // Modelos de raciocínio (série o*, gpt-5*) não aceitam o parâmetro `temperature`.
 const aceitaTemperatura = (modelo) => !/^(o\d|gpt-5)/i.test(modelo);
 
+/** Remove credenciais ou dados sensíveis de mensagens de log ou causas de erro. */
+const sanitizarLog = (texto) =>
+  String(texto || '')
+    .replace(/AIza[A-Za-z0-9_-]{30,}/g, '[CHAVE_GEMINI_OCULTADA]')
+    .replace(/sk-(proj-)?[A-Za-z0-9_-]{20,}/g, '[CHAVE_OPENAI_OCULTADA]')
+    .replace(/AQ\.[A-Za-z0-9_-]{20,}/g, '[CHAVE_VERTEX_OCULTADA]');
+
 /** Converte erros dos SDKs (OpenAI ou Google GenAI) / rede em ErroIA com mensagens amigáveis. */
 const traduzirErro = (erro) => {
   if (erro instanceof ErroIA) return erro;
 
-  const mensagem = String(erro?.message || '');
+  const mensagem = sanitizarLog(erro?.message || '');
   const statusHttp = Number(erro?.status || erro?.statusCode || erro?.code || 0);
 
   if (
@@ -175,23 +182,17 @@ const converterMensagensParaGemini = (mensagens) => {
 };
 
 const MODELOS_FALLBACK_GEMINI = [
-  'gemini-3.1-flash-lite',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-3.5-flash'
+  'gemini-2.5-flash'
 ];
 
 /**
- * Retorna a configuração de raciocínio (thinkingConfig) suportada pelo SDK @google/genai.
- * O modelo padrão Gemini 3.1 Flash-Lite é configurado com thinkingLevel: MINIMAL e
- * includeThoughts: false para garantir a menor latência e resposta quase instantânea.
+ * Retorna a configuração de raciocínio officially suportada pelo Gemini 3.1 Flash-Lite.
+ * Utiliza exclusivamente thinkingLevel: 'MINIMAL' para priorizar a menor latência.
+ * Nenhum parâmetro extra não suportado (ex.: includeThoughts) é enviado.
  */
 const obterThinkingConfig = (modelo = '') => {
   return {
-    thinkingLevel: ThinkingLevel?.MINIMAL || 'MINIMAL',
-    includeThoughts: false
+    thinkingLevel: 'MINIMAL'
   };
 };
 
@@ -208,7 +209,7 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
     ...MODELOS_FALLBACK_GEMINI.filter((m) => m !== config.ia.modelo)
   ];
 
-  // Cada tentativa tem um limite próprio para não bloquear o fallback caso o SDK tente reenviar em 503.
+  // Limite individual por tentativa para evitar que uma única chamada bloqueie o tempo limite.
   const timeoutPorTentativa = Math.min(config.ia.timeoutMs, Math.max(12000, Math.floor(config.ia.timeoutMs / 2)));
 
   const chamar = async (modelo, vertexai) => {
@@ -222,9 +223,13 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
       systemInstruction: systemPrompt,
       maxOutputTokens: config.ia.maxTokensResposta,
       temperature: config.ia.temperatura,
-      thinkingConfig: obterThinkingConfig(modelo),
       abortSignal: ctrlTentativa.signal
     };
+
+    const thinkingConfig = obterThinkingConfig(modelo);
+    if (thinkingConfig) {
+      configChamada.thinkingConfig = thinkingConfig;
+    }
 
     try {
       if (typeof onChunk === 'function') {
@@ -271,18 +276,15 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
         config: configChamada
       });
     } catch (erroTentativa) {
-      // Se um modelo mais antigo rejeitar thinkingLevel, tenta com thinkingBudget: 0
       const msg = String(erroTentativa?.message || '');
-      if (/thinkingLevel|thinkingConfig|unknown field/i.test(msg)) {
-        const configSimplificado = {
-          ...configChamada,
-          thinkingConfig: { thinkingBudget: 0 }
-        };
+      // Se um modelo legado de fallback não aceitar thinkingConfig, remove thinkingConfig (nunca injeta thinkingBudget: 0)
+      if (configChamada.thinkingConfig && /thinkingLevel|thinkingConfig|unknown field/i.test(msg)) {
+        delete configChamada.thinkingConfig;
         if (typeof onChunk === 'function') {
           const stream = await ai.models.generateContentStream({
             model: modelo,
             contents: conteudos,
-            config: configSimplificado
+            config: configChamada
           });
           let textoAcumulado = '';
           for await (const chunk of stream) {
@@ -297,7 +299,7 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
         return await ai.models.generateContent({
           model: modelo,
           contents: conteudos,
-          config: configSimplificado
+          config: configChamada
         });
       }
       throw erroTentativa;
@@ -321,20 +323,26 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
       } catch (erroModelo) {
         ultimoErro = erroModelo;
         const msg = String(erroModelo?.message || '');
-        const status = Number(erroModelo?.status || erroModelo?.code || 0);
-        const abortadoPorTentativa =
-          !controladorTotal.signal.aborted &&
-          (erroModelo?.name === 'AbortError' || /aborted|timed?\s*out/i.test(msg));
-        if (
-          abortadoPorTentativa ||
+        const status = Number(erroModelo?.status || erroModelo?.statusCode || erroModelo?.code || 0);
+        const msgLimpa = sanitizarLog(msg);
+
+        // Registro interno técnico seguro (sem credenciais) para diagnóstico em observabilidade/Vercel
+        console.error(
+          `[gemini:erro] modelo=${modeloCandidato} status=${status || 'desconhecido'} detalhe=${msgLimpa}`
+        );
+
+        // Apenas erros transitórios de sobrecarga de serviço (503 / 429 com alta demanda) justificam fallback.
+        // Erros de configuração, credenciais (401), permissão (403), parâmetros inválidos (400) ou cancelamento falham imediatamente.
+        const ehTransitorio =
           status === 503 ||
           status === 429 ||
-          status === 404 ||
-          /high demand|UNAVAILABLE|NOT_FOUND/i.test(msg)
-        ) {
-          continue;
+          /RESOURCE_EXHAUSTED|UNAVAILABLE|high demand/i.test(msg);
+
+        if (!ehTransitorio || controladorTotal.signal.aborted) {
+          throw erroModelo;
         }
-        throw erroModelo;
+        // Se for erro transitório de serviço, tenta no máximo o modelo de contingência
+        continue;
       }
     }
 
