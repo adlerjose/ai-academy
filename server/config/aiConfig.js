@@ -60,11 +60,13 @@ const lerConfig = () => {
       ? chaveGemini || chaveGenerica || chaveOpenai
       : chaveOpenai || chaveGenerica || chaveGemini;
 
-  const modeloPadrao = provedor === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4.1-mini';
+  const modeloPadrao = provedor === 'gemini' ? 'gemini-3.1-flash-lite' : 'gpt-4.1-mini';
   const modeloEnv = (
+    process.env.AI_MODEL ||
     (provedor === 'gemini'
-      ? process.env.GEMINI_MODEL || process.env.AI_MODEL || process.env.OPENAI_MODEL
-      : process.env.OPENAI_MODEL || process.env.AI_MODEL || process.env.GEMINI_MODEL) || ''
+      ? process.env.GEMINI_MODEL || process.env.OPENAI_MODEL
+      : process.env.OPENAI_MODEL || process.env.GEMINI_MODEL) ||
+    ''
   ).trim();
 
   // Se o provedor é Gemini mas o modelo ficou com um nome de GPT (ou vice-versa), usa o padrão do provedor.

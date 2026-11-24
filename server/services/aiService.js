@@ -11,7 +11,7 @@
  */
 
 const OpenAI = require('openai');
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenAI, ThinkingLevel } = require('@google/genai');
 const { config, iaConfigurada } = require('../config/aiConfig');
 
 /** Erro de domínio com código estável e status HTTP; a mensagem é segura para o usuário. */
@@ -175,15 +175,27 @@ const converterMensagensParaGemini = (mensagens) => {
 };
 
 const MODELOS_FALLBACK_GEMINI = [
+  'gemini-3.1-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.0-flash',
   'gemini-1.5-flash',
-  'gemini-3.5-flash',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash-lite'
+  'gemini-3.5-flash-lite',
+  'gemini-3.5-flash'
 ];
 
-const gerarComGemini = async ({ systemPrompt, mensagens, signal }) => {
+/**
+ * Retorna a configuração de raciocínio (thinkingConfig) suportada pelo SDK @google/genai.
+ * O modelo padrão Gemini 3.1 Flash-Lite é configurado com thinkingLevel: MINIMAL e
+ * includeThoughts: false para garantir a menor latência e resposta quase instantânea.
+ */
+const obterThinkingConfig = (modelo = '') => {
+  return {
+    thinkingLevel: ThinkingLevel?.MINIMAL || 'MINIMAL',
+    includeThoughts: false
+  };
+};
+
+const gerarComGemini = async ({ systemPrompt, mensagens, signal, onChunk }) => {
   const conteudos = converterMensagensParaGemini(mensagens);
   const controladorTotal = new AbortController();
   const timerTotal = setTimeout(() => controladorTotal.abort(), config.ia.timeoutMs);
@@ -206,18 +218,89 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal }) => {
     const propagarAbort = () => ctrlTentativa.abort();
     controladorTotal.signal.addEventListener('abort', propagarAbort, { once: true });
 
+    const configChamada = {
+      systemInstruction: systemPrompt,
+      maxOutputTokens: config.ia.maxTokensResposta,
+      temperature: config.ia.temperatura,
+      thinkingConfig: obterThinkingConfig(modelo),
+      abortSignal: ctrlTentativa.signal
+    };
+
     try {
+      if (typeof onChunk === 'function') {
+        const stream = await ai.models.generateContentStream({
+          model: modelo,
+          contents: conteudos,
+          config: configChamada
+        });
+
+        let textoAcumulado = '';
+        let motivoFinal = null;
+        let metadataUso = null;
+        let versaoModelo = modelo;
+
+        for await (const chunk of stream) {
+          if (controladorTotal.signal.aborted) break;
+          const pedaco = chunk.text || '';
+          if (pedaco) {
+            textoAcumulado += pedaco;
+            onChunk(pedaco);
+          }
+          if (chunk.candidates?.[0]?.finishReason) {
+            motivoFinal = chunk.candidates[0].finishReason;
+          }
+          if (chunk.usageMetadata) {
+            metadataUso = chunk.usageMetadata;
+          }
+          if (chunk.modelVersion) {
+            versaoModelo = chunk.modelVersion;
+          }
+        }
+
+        return {
+          text: textoAcumulado,
+          modelVersion: versaoModelo,
+          candidates: [{ finishReason: motivoFinal }],
+          usageMetadata: metadataUso
+        };
+      }
+
       return await ai.models.generateContent({
         model: modelo,
         contents: conteudos,
-        config: {
-          systemInstruction: systemPrompt,
-          maxOutputTokens: config.ia.maxTokensResposta,
-          temperature: config.ia.temperatura,
-          thinkingConfig: { thinkingBudget: 0 },
-          abortSignal: ctrlTentativa.signal
-        }
+        config: configChamada
       });
+    } catch (erroTentativa) {
+      // Se um modelo mais antigo rejeitar thinkingLevel, tenta com thinkingBudget: 0
+      const msg = String(erroTentativa?.message || '');
+      if (/thinkingLevel|thinkingConfig|unknown field/i.test(msg)) {
+        const configSimplificado = {
+          ...configChamada,
+          thinkingConfig: { thinkingBudget: 0 }
+        };
+        if (typeof onChunk === 'function') {
+          const stream = await ai.models.generateContentStream({
+            model: modelo,
+            contents: conteudos,
+            config: configSimplificado
+          });
+          let textoAcumulado = '';
+          for await (const chunk of stream) {
+            const pedaco = chunk.text || '';
+            if (pedaco) {
+              textoAcumulado += pedaco;
+              onChunk(pedaco);
+            }
+          }
+          return { text: textoAcumulado, modelVersion: modelo };
+        }
+        return await ai.models.generateContent({
+          model: modelo,
+          contents: conteudos,
+          config: configSimplificado
+        });
+      }
+      throw erroTentativa;
     } finally {
       clearTimeout(timerTentativa);
       controladorTotal.signal.removeEventListener('abort', propagarAbort);
@@ -283,7 +366,7 @@ const gerarComGemini = async ({ systemPrompt, mensagens, signal }) => {
   }
 };
 
-const gerarComOpenai = async ({ systemPrompt, mensagens, signal }) => {
+const gerarComOpenai = async ({ systemPrompt, mensagens, signal, onChunk }) => {
   const openai = obterClienteOpenai();
 
   const corpo = {
@@ -292,6 +375,32 @@ const gerarComOpenai = async ({ systemPrompt, mensagens, signal }) => {
     max_completion_tokens: config.ia.maxTokensResposta
   };
   if (aceitaTemperatura(config.ia.modelo)) corpo.temperature = config.ia.temperatura;
+
+  if (typeof onChunk === 'function') {
+    const stream = await openai.chat.completions.create(
+      { ...corpo, stream: true },
+      { signal }
+    );
+    let textoCompleto = '';
+    let modelUsado = config.ia.modelo;
+    for await (const parte of stream) {
+      if (signal?.aborted) break;
+      const delta = parte.choices?.[0]?.delta?.content || '';
+      if (delta) {
+        textoCompleto += delta;
+        onChunk(delta);
+      }
+      if (parte.model) modelUsado = parte.model;
+    }
+    const textoLimpo = textoCompleto.trim();
+    if (!textoLimpo) {
+      throw new ErroIA('AI_EMPTY_RESPONSE', 502, 'O mecanismo de inteligência retornou uma resposta vazia.');
+    }
+    return {
+      resposta: textoLimpo,
+      modelo: modelUsado
+    };
+  }
 
   const conclusao = await openai.chat.completions.create(corpo, { signal });
   const escolha = conclusao.choices?.[0];
@@ -311,22 +420,32 @@ const gerarComOpenai = async ({ systemPrompt, mensagens, signal }) => {
 
 /**
  * Envia a conversa ao modelo e retorna o texto da resposta.
+ * Se onChunk for fornecido, executa via streaming chamando o callback a cada fragmento gerado.
+ *
  * @param {object} params
  * @param {string} params.systemPrompt
  * @param {Array<{role:'user'|'assistant', content:string}>} params.mensagens Histórico já validado.
  * @param {AbortSignal} [params.signal] Cancelamento (ex.: cliente desconectou).
+ * @param {(chunk: string) => void} [params.onChunk] Callback de streaming para visualização antecipada.
  * @returns {Promise<{resposta:string, modelo:string, uso?:object}>}
  */
-const gerarResposta = async ({ systemPrompt, mensagens, signal }) => {
+const gerarResposta = async ({ systemPrompt, mensagens, signal, onChunk }) => {
   assegurarConfigurada();
   try {
     if (config.ia.provedor === 'gemini') {
-      return await gerarComGemini({ systemPrompt, mensagens, signal });
+      return await gerarComGemini({ systemPrompt, mensagens, signal, onChunk });
     }
-    return await gerarComOpenai({ systemPrompt, mensagens, signal });
+    return await gerarComOpenai({ systemPrompt, mensagens, signal, onChunk });
   } catch (erro) {
     throw traduzirErro(erro);
   }
 };
 
-module.exports = { gerarResposta, ErroIA, traduzirErro, converterMensagensParaGemini };
+module.exports = {
+  gerarResposta,
+  ErroIA,
+  traduzirErro,
+  converterMensagensParaGemini,
+  obterThinkingConfig,
+  MODELOS_FALLBACK_GEMINI
+};
