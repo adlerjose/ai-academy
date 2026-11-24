@@ -41,6 +41,12 @@ const detectarProvedor = (provedorExplicito, chaveGemini, chaveOpenai, baseUrl) 
   return 'openai';
 };
 
+const MODELOS_OBSOLETOS = new Set([
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash-lite'
+]);
+
 const lerConfig = () => {
   const porta = inteiro(process.env.PORT, 3000, { min: 1, max: 65535 });
   const chaveGemini = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
@@ -61,21 +67,30 @@ const lerConfig = () => {
       : chaveOpenai || chaveGenerica || chaveGemini;
 
   const modeloPadrao = provedor === 'gemini' ? 'gemini-3.1-flash-lite' : 'gpt-4.1-mini';
-  const modeloEnv = (
-    process.env.AI_MODEL ||
-    (provedor === 'gemini'
-      ? process.env.GEMINI_MODEL || process.env.OPENAI_MODEL
-      : process.env.OPENAI_MODEL || process.env.GEMINI_MODEL) ||
-    ''
-  ).trim();
 
-  // Se o provedor é Gemini mas o modelo ficou com um nome de GPT (ou vice-versa), usa o padrão do provedor.
-  const modelo =
-    modeloEnv && !(provedor === 'gemini' && /^(gpt-|o\d)/i.test(modeloEnv))
-      ? modeloEnv
-      : modeloPadrao;
+  // Precedência de variáveis: GEMINI_MODEL é priorizada para o Gemini, seguida por AI_MODEL.
+  // Nomes de modelos obsoletos de versões anteriores (ex.: gemini-3.5-flash) são ignorados.
+  let modeloEnv = '';
+  if (provedor === 'gemini') {
+    const especifico = (process.env.GEMINI_MODEL || '').trim();
+    const generico = (process.env.AI_MODEL || '').trim();
+    if (especifico && !MODELOS_OBSOLETOS.has(especifico.toLowerCase())) {
+      modeloEnv = especifico;
+    } else if (generico && !/^(gpt-|o\d)/i.test(generico) && !MODELOS_OBSOLETOS.has(generico.toLowerCase())) {
+      modeloEnv = generico;
+    }
+  } else {
+    modeloEnv = (process.env.OPENAI_MODEL || process.env.AI_MODEL || '').trim();
+  }
 
-  const vertexAi = process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true';
+  const modelo = modeloEnv || modeloPadrao;
+
+  // Vertex AI Express Mode (chaves "AQ.") vs Google AI Studio (chaves "AIza").
+  // Chaves do Google AI Studio SEMPRE utilizam a Gemini Developer API (vertexai: false).
+  const vertexAi = Boolean(
+    (process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true' || /^AQ\./i.test(chaveApi)) &&
+      !/^AIza/i.test(chaveApi)
+  );
 
   return Object.freeze({
     servidor: Object.freeze({
@@ -123,7 +138,17 @@ const lerConfig = () => {
   });
 };
 
-const config = lerConfig();
-const iaConfigurada = () => config.ia.chaveApi.length > 0;
+let configAtual = lerConfig();
+const recarregarConfig = () => {
+  configAtual = lerConfig();
+  return configAtual;
+};
+const iaConfigurada = () => configAtual.ia.chaveApi.length > 0;
 
-module.exports = { config, iaConfigurada, lerConfig };
+const config = new Proxy({}, {
+  get(target, prop) {
+    return configAtual[prop];
+  }
+});
+
+module.exports = { config, iaConfigurada, lerConfig, recarregarConfig };
