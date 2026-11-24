@@ -3,10 +3,10 @@
   "version": "1.1.0",
   "description": "Plataforma educacional AI Academy com o assistente virtual Turing (IA integrada via backend Node.js/Express).",
   "private": true,
-  "main": "server/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node --watch-path=server --watch-path=index.html server/server.js",
+    "start": "node server.js",
+    "dev": "node --watch-path=server --watch-path=index.html server.js",
     "test": "node --test --test-concurrency=1 test/*.test.js",
     "test:ia": "node test/smoke-ia.js",
     "check:seguranca": "node test/verificar-chave.js"

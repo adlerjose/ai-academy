@@ -8,6 +8,7 @@
 
 require('dotenv').config({ quiet: true });
 
+const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 
@@ -17,7 +18,20 @@ const { construirSystemPrompt } = require('./config/turingPrompt');
 const { criarRotaChat } = require('./routes/chat');
 const { ErroIA } = require('./services/aiService');
 
-const RAIZ = path.join(__dirname, '..');
+const obterDiretorioRaiz = () => {
+  const candidatos = [
+    process.cwd(),
+    path.join(__dirname, '..')
+  ];
+  for (const cand of candidatos) {
+    if (fs.existsSync(path.join(cand, 'index.html'))) {
+      return cand;
+    }
+  }
+  return path.join(__dirname, '..');
+};
+
+const RAIZ = obterDiretorioRaiz();
 
 /** Cabeçalhos de segurança aplicados a todas as respostas. */
 const cabecalhosSeguranca = (req, res, next) => {
@@ -132,6 +146,15 @@ const criarApp = ({ registrar = console } = {}) => {
 
   api.use((req, res, next) => next(new ErroIA('NOT_FOUND', 404, 'Recurso não encontrado.')));
   app.use('/api', api);
+
+  // Compatibilidade com ambientes serverless caso o prefixo /api seja consumido pelo gateway
+  app.use((req, res, next) => {
+    const rota = req.path || req.url;
+    if (rota === '/health' || rota === '/chat') {
+      return api(req, res, next);
+    }
+    return next();
+  });
 
   // ---------- Frontend estático (apenas diretórios públicos) ----------
   const opcoesEstaticas = { index: false, dotfiles: 'deny', maxAge: config.servidor.ambiente === 'production' ? '1h' : 0 };

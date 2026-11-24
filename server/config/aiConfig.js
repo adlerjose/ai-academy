@@ -33,9 +33,11 @@ const detectarProvedor = (provedorExplicito, chaveGemini, chaveOpenai, baseUrl) 
   // Se houver baseURL customizada (ex.: testes locais ou proxy OpenAI-compatible), usa o cliente OpenAI.
   if (baseUrl) return 'openai';
 
+  if (chaveGemini && !chaveOpenai) return 'gemini';
+  if (chaveOpenai && !chaveGemini) return 'openai';
+
   const chaveCandidata = chaveGemini || chaveOpenai;
   if (/^(AQ\.|AIza)/i.test(chaveCandidata)) return 'gemini';
-  if (chaveGemini && !chaveOpenai) return 'gemini';
   return 'openai';
 };
 
@@ -79,7 +81,9 @@ const lerConfig = () => {
       host: process.env.HOST || '127.0.0.1',
       ambiente: process.env.NODE_ENV || 'development',
       origensPermitidas: listaOrigens(process.env.CORS_ORIGINS),
-      confiarProxy: process.env.TRUST_PROXY ? process.env.TRUST_PROXY === 'true' : process.env.CODESPACES === 'true'
+      confiarProxy: process.env.TRUST_PROXY
+        ? process.env.TRUST_PROXY === 'true'
+        : process.env.CODESPACES === 'true' || process.env.VERCEL === '1'
     }),
 
     ia: Object.freeze({

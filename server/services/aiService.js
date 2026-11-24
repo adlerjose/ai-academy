@@ -174,7 +174,14 @@ const converterMensagensParaGemini = (mensagens) => {
   return conteudos;
 };
 
-const MODELOS_FALLBACK_GEMINI = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+const MODELOS_FALLBACK_GEMINI = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-1.5-flash',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash-lite'
+];
 
 const gerarComGemini = async ({ systemPrompt, mensagens, signal }) => {
   const conteudos = converterMensagensParaGemini(mensagens);
