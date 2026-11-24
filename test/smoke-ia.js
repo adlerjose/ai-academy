@@ -28,7 +28,7 @@ const ROTEIRO = [
 
 const executar = async () => {
   if (!config.ia.chaveApi) {
-    console.error('\n✖ OPENAI_API_KEY não configurada. Preencha o arquivo .env antes de executar este teste.\n');
+    console.error('\n✖ GEMINI_API_KEY ou OPENAI_API_KEY não configurada. Preencha o arquivo .env antes de executar este teste.\n');
     process.exit(2);
   }
 

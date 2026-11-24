@@ -38,6 +38,19 @@ const iniciarProvedorFalso = async () => {
         usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 }
       });
 
+      if (json.stream && estado.modo === 'ok') {
+        const ultima = json.messages?.[json.messages.length - 1]?.content || '';
+        res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+        res.write(`data: ${JSON.stringify({ id: 'chatcmpl-stream', model: json.model, choices: [{ delta: { content: 'Resposta simulada para: ' } }] })}\n\n`);
+        return setTimeout(() => {
+          if (!res.writableEnded) {
+            res.write(`data: ${JSON.stringify({ id: 'chatcmpl-stream', model: json.model, choices: [{ delta: { content: ultima } }] })}\n\n`);
+            res.write('data: [DONE]\n\n');
+            res.end();
+          }
+        }, estado.atrasoMs || 10);
+      }
+
       switch (estado.modo) {
         case 'erro500':
           return responder(500, { error: { message: 'falha interna do provedor', type: 'server_error' } });

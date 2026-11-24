@@ -176,3 +176,50 @@ test('rota de API inexistente responde JSON 404', async () => {
   assert.equal((await r.json()).erro.codigo, 'NOT_FOUND');
 });
 
+test('POST /api/chat com stream: true responde SSE com chunks e evento done', async () => {
+  const inicioReq = Date.now();
+  const r = await postarChat(app.url, {
+    mensagem: 'Olá Turing',
+    stream: true
+  });
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get('content-type'), /text\/event-stream/);
+
+  const texto = await r.text();
+  const linhas = texto.split('\n').filter((l) => l.startsWith('data:'));
+  assert.ok(linhas.length >= 2, 'esperado ao menos um chunk de conteúdo e o evento final');
+
+  const pacotes = linhas.map((l) => JSON.parse(l.replace(/^data:\s*/, '')));
+  const chunks = pacotes.filter((p) => p.chunk);
+  const final = pacotes.find((p) => p.done);
+
+  assert.ok(chunks.length >= 1, 'recebeu fragmento de texto');
+  assert.ok(final, 'recebeu evento done: true');
+  assert.ok(final.ttft >= 0, 'registrou tempo até o primeiro token');
+  assert.ok(final.tempoTotal >= final.ttft, 'tempo total maior ou igual ao TTFT');
+  assert.equal(final.modelo, 'modelo-teste');
+});
+
+test('otimização de histórico preserva a âncora inicial do estudante e as mensagens recentes', async () => {
+  const historico = [
+    { role: 'assistant', content: 'Olá! Sou Turing...' },
+    { role: 'user', content: 'Sou desenvolvedor backend Node.js há 3 anos' },
+    ...Array.from({ length: 30 }, (_, i) => ({
+      role: i % 2 ? 'user' : 'assistant',
+      content: `conversa intermediária ${i}`
+    }))
+  ];
+
+  const r = await postarChat(app.url, {
+    mensagem: 'Quais cursos você me recomenda?',
+    historico
+  });
+  assert.equal(r.status, 200);
+
+  const { messages } = provedor.estado.requisicoes[0].corpo;
+  // A âncora inicial com o perfil do estudante ("Node.js") deve estar preservada nas primeiras mensagens
+  const primeiraMsgUsuario = messages.find((m) => m.role === 'user');
+  assert.ok(primeiraMsgUsuario, 'encontrou mensagem de usuário');
+  assert.match(primeiraMsgUsuario.content, /Node\.js/, 'manteve relato inicial de experiência técnica');
+});
+
