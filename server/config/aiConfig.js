@@ -58,7 +58,7 @@ const lerConfig = () => {
       ? chaveGemini || chaveGenerica || chaveOpenai
       : chaveOpenai || chaveGenerica || chaveGemini;
 
-  const modeloPadrao = provedor === 'gemini' ? 'gemini-3.6-flash' : 'gpt-4.1-mini';
+  const modeloPadrao = provedor === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4.1-mini';
   const modeloEnv = (
     (provedor === 'gemini'
       ? process.env.GEMINI_MODEL || process.env.AI_MODEL || process.env.OPENAI_MODEL
